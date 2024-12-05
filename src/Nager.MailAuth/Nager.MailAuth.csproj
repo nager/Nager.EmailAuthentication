@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Tino Hager</Authors>
+    <Company>nager.at</Company>
+    <Description>Email Authentication, DMARC</Description>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <ImplicitUsings>enable</ImplicitUsings>
+	  
+    <Nullable>enable</Nullable>
+	  
+    <!--<PackageIcon>logo.png</PackageIcon>-->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+    <!--<PackageReleaseNotes></PackageReleaseNotes>-->
+    <PackageProjectUrl>https://github.com/nager/Nager.MailAuth</PackageProjectUrl>
+    <PackageTags>MailAuth Dmarc</PackageTags>
+	  
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+</Project>
