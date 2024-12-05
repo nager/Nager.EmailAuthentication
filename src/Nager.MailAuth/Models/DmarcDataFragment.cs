@@ -5,7 +5,7 @@ namespace Nager.MailAuth.Models
     /// <summary>
     /// Represents a parsed DMARC record with its components.
     /// </summary>
-    public class DmarcRecord
+    public class DmarcDataFragment
     {
         /// <summary>
         /// Gets or sets the DMARC version (e.g., "DMARC1").
@@ -61,11 +61,6 @@ namespace Nager.MailAuth.Models
         /// Gets or sets the percentage of messages subjected to the DMARC policy (e.g., "100").
         /// </summary>
         public string? PolicyPercentage { get; set; }
-
-        /// <summary>
-        /// Gets or sets unknown or unhandled parts of the DMARC record.
-        /// </summary>
-        public List<string>? UnrecognizedParts { get; set; } = null;
 
         /// <summary>
         /// Returns a string representation of the DMARC record in a valid DMARC format.
