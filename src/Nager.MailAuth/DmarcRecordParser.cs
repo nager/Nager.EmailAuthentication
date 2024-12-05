@@ -12,6 +12,19 @@ namespace Nager.MailAuth
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcRecord">The parsed DMARC record, if successful.</param>
+        /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
+        public static bool TryParse(
+            string dmarcRaw,
+            out DmarcRecord? dmarcRecord)
+        {
+            return TryParse(dmarcRaw, out dmarcRecord, out _);
+        }
+
+        /// <summary>
+        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecord"/> object.
+        /// </summary>
+        /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
+        /// <param name="dmarcRecord">The parsed DMARC record, if successful.</param>
         /// <param name="unrecognizedParts">A list of unrecognized parts in the DMARC string, if any.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
