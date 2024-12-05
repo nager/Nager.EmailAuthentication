@@ -1,4 +1,4 @@
-﻿namespace Nager.MailAuth.UnitTest
+﻿namespace Nager.EmailAuthentication.UnitTest
 {
     [TestClass]
     public sealed class DmarcRecordParserTest

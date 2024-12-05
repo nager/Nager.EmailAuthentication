@@ -1,4 +1,4 @@
-﻿namespace Nager.MailAuth.Models
+﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
     /// Represents the details of a DMARC email address, including validation status and maximum size.

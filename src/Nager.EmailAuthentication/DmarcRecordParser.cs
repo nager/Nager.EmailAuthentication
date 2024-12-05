@@ -1,6 +1,6 @@
-﻿using Nager.MailAuth.Models;
+﻿using Nager.EmailAuthentication.Models;
 
-namespace Nager.MailAuth
+namespace Nager.EmailAuthentication
 {
     /// <summary>
     /// Dmarc Record Parser

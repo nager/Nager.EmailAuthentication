@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nager.MailAuth\Nager.MailAuth.csproj" />
+    <ProjectReference Include="..\Nager.EmailAuthentication\Nager.EmailAuthentication.csproj" />
   </ItemGroup>
 
   <ItemGroup>

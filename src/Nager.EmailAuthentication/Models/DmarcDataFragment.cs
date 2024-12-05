@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Nager.MailAuth.Models
+namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
     /// Represents a parsed DMARC record with its components.

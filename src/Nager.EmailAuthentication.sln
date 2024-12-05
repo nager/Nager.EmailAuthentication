@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nager.MailAuth", "Nager.MailAuth\Nager.MailAuth.csproj", "{FF1CF430-2ED7-4981-9B93-12A4625FBF2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nager.EmailAuthentication", "Nager.EmailAuthentication\Nager.EmailAuthentication.csproj", "{FF1CF430-2ED7-4981-9B93-12A4625FBF2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nager.MailAuth.UnitTest", "Nager.MailAuth.UnitTest\Nager.MailAuth.UnitTest.csproj", "{AEAC5FC8-BC05-4269-B099-AF38B765B6E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nager.EmailAuthentication.UnitTest", "Nager.EmailAuthentication.UnitTest\Nager.EmailAuthentication.UnitTest.csproj", "{AEAC5FC8-BC05-4269-B099-AF38B765B6E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
