@@ -1,4 +1,4 @@
-# Nager.MailAuth
+# Nager.EmailAuthentication
 
 ## Examples
 ```cs
