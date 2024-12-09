@@ -17,7 +17,7 @@ namespace Nager.EmailAuthentication
             string dmarcRaw,
             out DmarcDataFragment? dmarcDataFragment)
         {
-            return TryParse(dmarcRaw, out dmarcDataFragment, out _);
+            return TryParse(dmarcRaw, out dmarcDataFragment, out _, out _);
         }
 
         /// <summary>
@@ -26,18 +26,32 @@ namespace Nager.EmailAuthentication
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <param name="unrecognizedParts">A list of unrecognized parts in the DMARC string, if any.</param>
+        /// <param name="parseErrors">A list of errors in the DMARC string, if any.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string dmarcRaw,
             out DmarcDataFragment? dmarcDataFragment,
-            out string[]? unrecognizedParts)
+            out string[]? unrecognizedParts,
+            out ParseError[]? parseErrors)
         {
             unrecognizedParts = null;
+            parseErrors = null;
+
+            var errors = new List<ParseError>();
 
             if (string.IsNullOrWhiteSpace(dmarcRaw))
             {
                 dmarcDataFragment = null;
                 return false;
+            }
+
+            if (dmarcRaw.StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add(new ParseError
+                {
+                    ErrorMessage = "DMARC record is invalid: it must start with 'v=DMARC1'.",
+                    Severity = ErrorSeverity.Critical
+                });
             }
 
             var keyValueParser = new KeyValueParser.MemoryEfficientKeyValueParser(';', '=');
@@ -51,6 +65,19 @@ namespace Nager.EmailAuthentication
             {
                 dmarcDataFragment = null;
                 return false;
+            }
+
+            var duplicateConfigurations = parseResult.KeyValues
+                .GroupBy(o => o.Key)
+                .Where(g => g.Count() > 1);
+
+            foreach (var duplicate in duplicateConfigurations)
+            {
+                errors.Add(new ParseError
+                {
+                    ErrorMessage = $"Duplicate configuration detected for key: '{duplicate.Key}'.",
+                    Severity = ErrorSeverity.Warning
+                });
             }
 
             var dataFragment = new DmarcDataFragment();
@@ -94,7 +121,7 @@ namespace Nager.EmailAuthentication
             }
 
             unrecognizedParts = unrecognizedHandlers.Count == 0 ? null : [.. unrecognizedHandlers];
-
+            parseErrors = errors.Count == 0 ? null : [.. errors];
             dmarcDataFragment = dataFragment;
 
             return true;
