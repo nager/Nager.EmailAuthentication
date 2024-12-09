@@ -6,7 +6,6 @@
     <Description>Email Authentication, DMARC</Description>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <ImplicitUsings>enable</ImplicitUsings>
 	  
@@ -23,5 +22,9 @@
 
     <Version>1.0.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nager.KeyValueParser" Version="1.0.0" />
+  </ItemGroup>
 
 </Project>

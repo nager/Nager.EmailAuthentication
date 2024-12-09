@@ -40,52 +40,60 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
+            var keyValueParser = new KeyValueParser.MemoryEfficientKeyValueParser(';', '=');
+            if (!keyValueParser.TryParse(dmarcRaw, out var parseResult))
+            {
+                dmarcDataFragment = null;
+                return false;
+            }
+
+            if (parseResult == null)
+            {
+                dmarcDataFragment = null;
+                return false;
+            }
+
             var dataFragment = new DmarcDataFragment();
-            var internalUnrecognizedParts = new List<string>();
+            
+            var unrecognizedHandlers = new List<string>();
 
             var handlers = new Dictionary<string, Action<string>>
             {
-                { "v=", value => dataFragment.Version = value },
-                { "p=", value => dataFragment.DomainPolicy = value },
-                { "sp=", value => dataFragment.SubdomainPolicy = value },
-                { "rua=", value => dataFragment.AggregateReportUri = value },
-                { "ruf=", value => dataFragment.ForensicReportUri = value },
-                { "rf=", value => dataFragment.ReportFormat = value },
-                { "fo=", value => dataFragment.FailureOptions = value },
-                { "pct=", value => dataFragment.PolicyPercentage = value },
-                { "ri=", value => dataFragment.ReportingInterval = value },
-                { "adkim=", value => dataFragment.DkimAlignmentMode = value },
-                { "aspf=", value => dataFragment.SpfAlignmentMode = value }
+                { "v", value => dataFragment.Version = value },
+                { "p", value => dataFragment.DomainPolicy = value },
+                { "sp", value => dataFragment.SubdomainPolicy = value },
+                { "rua", value => dataFragment.AggregateReportUri = value },
+                { "ruf", value => dataFragment.ForensicReportUri = value },
+                { "rf", value => dataFragment.ReportFormat = value },
+                { "fo", value => dataFragment.FailureOptions = value },
+                { "pct", value => dataFragment.PolicyPercentage = value },
+                { "ri", value => dataFragment.ReportingInterval = value },
+                { "adkim", value => dataFragment.DkimAlignmentMode = value },
+                { "aspf", value => dataFragment.SpfAlignmentMode = value }
             };
 
-            var parts = dmarcRaw.Split(";", StringSplitOptions.RemoveEmptyEntries);
-            foreach (var part in parts)
+            foreach (var keyValue in parseResult.KeyValues)
             {
-                var cleanPart = part.AsSpan().TrimStart(' ');
-                var keyValueSeparatorIndex = cleanPart.IndexOf('=');
-
-                if (keyValueSeparatorIndex <= 0)
+                if (string.IsNullOrEmpty(keyValue.Key))
                 {
-                    internalUnrecognizedParts.Add(cleanPart.ToString());
                     continue;
                 }
 
-                var key = cleanPart[..(keyValueSeparatorIndex + 1)];
-                var value = cleanPart[(keyValueSeparatorIndex + 1)..];
-
-                if (handlers.TryGetValue(key.ToString().ToLowerInvariant(), out var handler))
+                if (handlers.TryGetValue(keyValue.Key.ToLowerInvariant(), out var handler))
                 {
-                    handler(value.ToString());
+                    handler(keyValue.Value ?? "");
                     continue;
                 }
 
-                internalUnrecognizedParts.Add(cleanPart.ToString());
+                unrecognizedHandlers.Add($"{keyValue.Key} {keyValue.Value}");
             }
 
-            if (internalUnrecognizedParts.Count > 0)
+            if (parseResult.UnrecognizedParts != null && parseResult.UnrecognizedParts.Length > 0)
             {
-                unrecognizedParts = [.. internalUnrecognizedParts];
+                unrecognizedHandlers.AddRange(parseResult.UnrecognizedParts);
             }
+
+            unrecognizedParts = unrecognizedHandlers.Count == 0 ? null : [.. unrecognizedHandlers];
 
             dmarcDataFragment = dataFragment;
 
