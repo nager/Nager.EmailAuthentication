@@ -6,17 +6,22 @@
     public enum ErrorSeverity
     {
         /// <summary>
-        /// Minor issues or informational messages
+        /// Info
         /// </summary>
         Info,
 
         /// <summary>
-        /// Potential issues that don't invalidate the DMARC string
+        /// Warning
         /// </summary>
         Warning,
 
         /// <summary>
-        /// Severe issues that invalidate the DMARC string
+        /// Error
+        /// </summary>
+        Error,
+
+        /// <summary>
+        /// Critical
         /// </summary>
         Critical
     }
