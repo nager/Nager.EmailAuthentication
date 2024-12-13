@@ -7,6 +7,8 @@ namespace Nager.EmailAuthentication
     /// </summary>
     public static class DmarcRecordParser
     {
+        private static readonly string[] AllowedPolicies = ["none", "quarantine", "reject"];
+
         /// <summary>
         /// Attempts to parse a raw DMARC string into a <see cref="DmarcDataFragment"/> object.
         /// </summary>
@@ -80,19 +82,76 @@ namespace Nager.EmailAuthentication
 
             var dataFragment = new DmarcDataFragment();
 
-            var handlers = new Dictionary<string, Action<string>>
+            var handlers = new Dictionary<string, MappingHandler>
             {
-                { "v", value => dataFragment.Version = value },
-                { "p", value => dataFragment.DomainPolicy = value },
-                { "sp", value => dataFragment.SubdomainPolicy = value },
-                { "rua", value => dataFragment.AggregateReportUri = value },
-                { "ruf", value => dataFragment.ForensicReportUri = value },
-                { "rf", value => dataFragment.ReportFormat = value },
-                { "fo", value => dataFragment.FailureOptions = value },
-                { "pct", value => dataFragment.PolicyPercentage = value },
-                { "ri", value => dataFragment.ReportingInterval = value },
-                { "adkim", value => dataFragment.DkimAlignmentMode = value },
-                { "aspf", value => dataFragment.SpfAlignmentMode = value }
+                {
+                    "v", new MappingHandler
+                    {
+                        Map = value => dataFragment.Version = value
+                    }
+                },
+                {
+                    "p", new MappingHandler
+                    {
+                        Map = value => dataFragment.DomainPolicy = value,
+                        Validate = ProcessDomainPolicy
+                    }
+                },
+                {
+                    "sp", new MappingHandler
+                    {
+                        Map = value => dataFragment.SubdomainPolicy = value,
+                        Validate = ProcessDomainPolicy
+                    }
+                },
+                {
+                    "rua", new MappingHandler
+                    {
+                        Map = value => dataFragment.AggregateReportUri = value
+                    }
+                },
+                {
+                    "ruf", new MappingHandler
+                    {
+                        Map = value => dataFragment.ForensicReportUri = value
+                    }
+                },
+                {
+                    "rf", new MappingHandler
+                    {
+                        Map = value => dataFragment.ReportFormat = value
+                    }
+                },
+                {
+                    "fo", new MappingHandler
+                    {
+                        Map = value => dataFragment.FailureOptions = value
+                    }
+                },
+                {
+                    "pct", new MappingHandler
+                    {
+                        Map = value => dataFragment.PolicyPercentage = value
+                    }
+                },
+                {
+                    "ri", new MappingHandler
+                    {
+                        Map = value => dataFragment.ReportingInterval = value
+                    }
+                },
+                {
+                    "adkim", new MappingHandler
+                    {
+                        Map = value => dataFragment.DkimAlignmentMode = value
+                    }
+                },
+                {
+                    "aspf", new MappingHandler
+                    {
+                        Map = value => dataFragment.SpfAlignmentMode = value
+                    }
+                }
             };
 
             foreach (var keyValue in parseResult.KeyValues)
@@ -104,7 +163,12 @@ namespace Nager.EmailAuthentication
 
                 if (handlers.TryGetValue(keyValue.Key.ToLowerInvariant(), out var handler))
                 {
-                    handler(keyValue.Value ?? "");
+                    if (handler.Validate != null)
+                    {
+                        errors.AddRange([.. handler.Validate(keyValue.Value)]);
+                    }
+                    handler.Map(keyValue.Value ?? "");
+                    
                     continue;
                 }
 
@@ -119,6 +183,31 @@ namespace Nager.EmailAuthentication
             dmarcDataFragment = dataFragment;
 
             return true;
+        }
+
+        private static ParseError[] ProcessDomainPolicy(string? data)
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                return [];
+            }
+
+            var errors = new List<ParseError>();
+
+            var domainPolicy = AllowedPolicies
+                .Where(policy => policy.Equals(data, StringComparison.OrdinalIgnoreCase))
+                .SingleOrDefault();
+
+            if (domainPolicy == null)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"Unknown policy \"{data}\""
+                });
+            }
+
+            return [.. errors];
         }
     }
 }

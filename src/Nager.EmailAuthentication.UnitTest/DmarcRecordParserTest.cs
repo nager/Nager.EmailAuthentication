@@ -27,7 +27,8 @@
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("Test", dmarcDataFragment.DomainPolicy);
-            Assert.IsNull(parseErrors);
+            Assert.IsNotNull(parseErrors);
+            Assert.IsTrue(parseErrors.Length == 1);
         }
 
         [TestMethod]
@@ -37,7 +38,8 @@
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("Test", dmarcDataFragment.DomainPolicy);
-            Assert.IsNull(parseErrors);
+            Assert.IsNotNull(parseErrors);
+            Assert.IsTrue(parseErrors.Length == 1);
         }
 
         [TestMethod]
