@@ -9,6 +9,7 @@
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC", out var dmarcDataFragment, out var parseErrors);
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
+            Assert.IsNotNull(parseErrors, "ParseErrors is null");
         }
 
         [TestMethod]
@@ -17,7 +18,7 @@
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1", out var dmarcDataFragment, out var parseErrors);
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
-            Assert.IsNull(parseErrors);
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
         }
 
         [TestMethod]
@@ -49,7 +50,7 @@
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
-            Assert.IsNull(parseErrors);
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
         }
 
         [TestMethod]
@@ -60,7 +61,7 @@
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
             Assert.AreEqual("none", dmarcDataFragment.SubdomainPolicy);
-            Assert.IsNull(parseErrors);
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
         }
 
         [TestMethod]
@@ -74,7 +75,7 @@
             Assert.AreEqual("100", dmarcDataFragment.PolicyPercentage);
             Assert.AreEqual("s", dmarcDataFragment.DkimAlignmentMode);
             Assert.AreEqual("s", dmarcDataFragment.SpfAlignmentMode);
-            Assert.IsNull(parseErrors);
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
         }
 
         [TestMethod]
@@ -83,7 +84,7 @@
             var isSuccessful = DmarcRecordParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parseErrors);
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
-            Assert.IsNotNull(parseErrors);
+            Assert.IsNotNull(parseErrors, "ParseErrors is null");
             Assert.IsTrue(parseErrors.Length == 2);
         }
 
@@ -93,7 +94,18 @@
             var isSuccessful = DmarcRecordParser.TryParse(" ", out var dmarcDataFragment, out var parseErrors);
             Assert.IsFalse(isSuccessful);
             Assert.IsNull(dmarcDataFragment);
-            Assert.IsNull(parseErrors);
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
+        }
+
+        [TestMethod]
+        public void TryParse_CorruptDmarcString3_ReturnsTrueWithErrors()
+        {
+            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; pct=200;", out var dmarcDataFragment, out var parseErrors);
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dmarcDataFragment);
+            Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
+            Assert.AreEqual("200", dmarcDataFragment.PolicyPercentage);
+            Assert.IsNotNull(parseErrors, "ParseErrors is null");
         }
     }
 }

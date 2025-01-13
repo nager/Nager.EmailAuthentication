@@ -94,14 +94,14 @@ namespace Nager.EmailAuthentication
                     "p", new MappingHandler
                     {
                         Map = value => dataFragment.DomainPolicy = value,
-                        Validate = ProcessDomainPolicy
+                        Validate = ValidateDomainPolicy
                     }
                 },
                 {
                     "sp", new MappingHandler
                     {
                         Map = value => dataFragment.SubdomainPolicy = value,
-                        Validate = ProcessDomainPolicy
+                        Validate = ValidateDomainPolicy
                     }
                 },
                 {
@@ -131,7 +131,8 @@ namespace Nager.EmailAuthentication
                 {
                     "pct", new MappingHandler
                     {
-                        Map = value => dataFragment.PolicyPercentage = value
+                        Map = value => dataFragment.PolicyPercentage = value,
+                        Validate = ValidatePolicyPercentage
                     }
                 },
                 {
@@ -165,7 +166,7 @@ namespace Nager.EmailAuthentication
                 {
                     if (handler.Validate != null)
                     {
-                        errors.AddRange([.. handler.Validate(keyValue.Value)]);
+                        errors.AddRange([.. handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value })]);
                     }
                     handler.Map(keyValue.Value ?? "");
                     
@@ -185,9 +186,9 @@ namespace Nager.EmailAuthentication
             return true;
         }
 
-        private static ParseError[] ProcessDomainPolicy(string? data)
+        private static ParseError[] ValidateDomainPolicy(ValidateRequest validateRequest)
         {
-            if (string.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(validateRequest.Value))
             {
                 return [];
             }
@@ -195,7 +196,7 @@ namespace Nager.EmailAuthentication
             var errors = new List<ParseError>();
 
             var domainPolicy = AllowedPolicies
-                .Where(policy => policy.Equals(data, StringComparison.OrdinalIgnoreCase))
+                .Where(policy => policy.Equals(validateRequest.Value, StringComparison.OrdinalIgnoreCase))
                 .SingleOrDefault();
 
             if (domainPolicy == null)
@@ -203,11 +204,45 @@ namespace Nager.EmailAuthentication
                 errors.Add(new ParseError
                 {
                     Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"Unknown policy \"{data}\""
+                    ErrorMessage = $"Unknown policy \"{validateRequest.Value}\""
                 });
             }
 
             return [.. errors];
+        }
+
+        private static ParseError[] ValidatePolicyPercentage(ValidateRequest validateRequest)
+        {
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                return [];
+            }
+
+            var errors = new List<ParseError>();
+
+            if (!int.TryParse(validateRequest.Value, out var percentage))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} value is not a number"
+                });
+
+                return [.. errors];
+            }
+
+            if (percentage < 0 || percentage > 100)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} value is not in allowed range"
+                });
+
+                return [.. errors];
+            }
+
+            return [];
         }
     }
 }
