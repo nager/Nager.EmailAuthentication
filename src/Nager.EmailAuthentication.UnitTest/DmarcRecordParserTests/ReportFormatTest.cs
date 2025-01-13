@@ -1,7 +1,7 @@
-﻿namespace Nager.EmailAuthentication.UnitTest
+﻿namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
     [TestClass]
-    public sealed class DmarcRecordParserReportFormatTest
+    public sealed class ReportFormatTest
     {
         [TestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
@@ -11,7 +11,7 @@
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
             Assert.AreEqual("afrf", dmarcDataFragment.ReportFormat);
-            Assert.IsNull(parseErrors, "ParseErrors is not null"); ;
+            Assert.IsNull(parseErrors, "ParseErrors is not null");
         }
 
         [TestMethod]

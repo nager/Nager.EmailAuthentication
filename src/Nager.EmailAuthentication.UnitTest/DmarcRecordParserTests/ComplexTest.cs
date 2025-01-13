@@ -1,7 +1,7 @@
-﻿namespace Nager.EmailAuthentication.UnitTest
+﻿namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
     [TestClass]
-    public sealed class DmarcRecordParserComplexTest
+    public sealed class ComplexTest
     {
         [TestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()

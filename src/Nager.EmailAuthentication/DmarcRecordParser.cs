@@ -1,5 +1,4 @@
 ﻿using Nager.EmailAuthentication.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nager.EmailAuthentication
 {
@@ -127,7 +126,8 @@ namespace Nager.EmailAuthentication
                 {
                     "fo", new MappingHandler
                     {
-                        Map = value => dataFragment.FailureOptions = value
+                        Map = value => dataFragment.FailureReportingOptions = value,
+                        Validate = ValidateFailureReportingOptions
                     }
                 },
                 {
@@ -278,6 +278,42 @@ namespace Nager.EmailAuthentication
 
                 return [.. errors];
             }
+
+            return [];
+        }
+
+        private static ParseError[] ValidateFailureReportingOptions(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            var allowedOptions = new char[] { '0', '1', 'd', 's' };
+
+            if (validateRequest.Value.Length == 1)
+            {
+                if (!allowedOptions.Contains(validateRequest.Value[0]))
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+                    });
+
+                    return [.. errors];
+                }
+            }
+
+            //TODO: Check failure reporting combination
 
             return [];
         }

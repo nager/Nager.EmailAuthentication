@@ -50,7 +50,7 @@ namespace Nager.EmailAuthentication.Models
         /// <summary>
         /// Gets or sets the failure reporting options (e.g., "0", "1").
         /// </summary>
-        public string? FailureOptions { get; set; }
+        public string? FailureReportingOptions { get; set; }
 
         /// <summary>
         /// Gets or sets the SPF alignment mode (e.g., "r" for relaxed, "s" for strict").
@@ -96,9 +96,9 @@ namespace Nager.EmailAuthentication.Models
             {
                 builder.Append($"; adkim={DkimAlignmentMode}");
             }
-            if (!string.IsNullOrWhiteSpace(FailureOptions))
+            if (!string.IsNullOrWhiteSpace(FailureReportingOptions))
             {
-                builder.Append($"; fo={FailureOptions}");
+                builder.Append($"; fo={FailureReportingOptions}");
             }
             if (!string.IsNullOrWhiteSpace(SpfAlignmentMode))
             {
