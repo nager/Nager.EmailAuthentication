@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nager.EmailAuthentication
 {
@@ -119,7 +120,8 @@ namespace Nager.EmailAuthentication
                 {
                     "rf", new MappingHandler
                     {
-                        Map = value => dataFragment.ReportFormat = value
+                        Map = value => dataFragment.ReportFormat = value,
+                        Validate = ValidateReportFormat
                     }
                 },
                 {
@@ -213,12 +215,18 @@ namespace Nager.EmailAuthentication
 
         private static ParseError[] ValidatePolicyPercentage(ValidateRequest validateRequest)
         {
+            var errors = new List<ParseError>();
+
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                return [];
-            }
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
 
-            var errors = new List<ParseError>();
+                return [.. errors];
+            }
 
             if (!int.TryParse(validateRequest.Value, out var percentage))
             {
@@ -237,6 +245,35 @@ namespace Nager.EmailAuthentication
                 {
                     Severity = ErrorSeverity.Error,
                     ErrorMessage = $"{validateRequest.Field} value is not in allowed range"
+                });
+
+                return [.. errors];
+            }
+
+            return [];
+        }
+
+        private static ParseError[] ValidateReportFormat(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            if (!validateRequest.Value.Equals("afrf", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} only allow Authentication Failure Reporting Format (afrf)"
                 });
 
                 return [.. errors];
