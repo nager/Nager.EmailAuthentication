@@ -64,7 +64,21 @@
         }
 
         [TestMethod]
-        public void TryParse_CorruptDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
+        public void TryParse_ValidDmarcString3_ReturnsTrueAndPopulatesDmarcRecord()
+        {
+            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=100; adkim=s; aspf=s", out var dmarcDataFragment, out var parseErrors);
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dmarcDataFragment);
+            Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
+            Assert.AreEqual("mailto:postmaster@example.com, mailto:dmarc@example.com", dmarcDataFragment.AggregateReportUri);
+            Assert.AreEqual("100", dmarcDataFragment.PolicyPercentage);
+            Assert.AreEqual("s", dmarcDataFragment.DkimAlignmentMode);
+            Assert.AreEqual("s", dmarcDataFragment.SpfAlignmentMode);
+            Assert.IsNull(parseErrors);
+        }
+
+        [TestMethod]
+        public void TryParse_CorruptDmarcString1_ReturnsTrueAndParseErrors()
         {
             var isSuccessful = DmarcRecordParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parseErrors);
             Assert.IsTrue(isSuccessful);
@@ -74,7 +88,7 @@
         }
 
         [TestMethod]
-        public void TryParse_CorruptDmarcString2_ReturnsTrueAndPopulatesDmarcRecord()
+        public void TryParse_CorruptDmarcString2_ReturnsFalse()
         {
             var isSuccessful = DmarcRecordParser.TryParse(" ", out var dmarcDataFragment, out var parseErrors);
             Assert.IsFalse(isSuccessful);
