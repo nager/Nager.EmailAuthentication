@@ -1,4 +1,4 @@
-name: Build & Test
+name: Build and Deploy
 
 on:
   push:
@@ -13,23 +13,47 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-    - name: Restore dependencies
-      working-directory: ./src
-      run: dotnet restore
-    - name: Build
-      working-directory: ./src
-      run: dotnet build --no-restore
-    - name: Test
-      working-directory: ./src
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./src
+
+      - name: Build
+        run: dotnet build ./src --configuration Release --no-restore
+        
+      - name: Test
+        run: dotnet test ./src --no-build --verbosity normal
+
+  pack-and-push:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build and pack NuGet package
+        run: |
+          dotnet pack ./src/Nager.EmailAuthentication/Nager.EmailAuthentication.csproj \
+            --configuration Release \
+            --output $GITHUB_WORKSPACE/out
+
+      - name: Push NuGet package
+        run: |
+          dotnet nuget push $GITHUB_WORKSPACE/out/*.nupkg \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_TOKEN }} \
+            --skip-duplicate

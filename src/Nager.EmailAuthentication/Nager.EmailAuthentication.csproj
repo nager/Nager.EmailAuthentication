@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Tino Hager</Authors>
     <Company>nager.at</Company>
-    <Description>Email Authentication, DMARC</Description>
+    <Description>Email Authentication, DMARC Record Validation</Description>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
