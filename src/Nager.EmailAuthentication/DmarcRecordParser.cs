@@ -107,13 +107,15 @@ namespace Nager.EmailAuthentication
                 {
                     "rua", new MappingHandler
                     {
-                        Map = value => dataFragment.AggregateReportUri = value
+                        Map = value => dataFragment.AggregateReportUri = value,
+                        Validate = ValidateAddresses
                     }
                 },
                 {
                     "ruf", new MappingHandler
                     {
-                        Map = value => dataFragment.ForensicReportUri = value
+                        Map = value => dataFragment.ForensicReportUri = value,
+                        Validate = ValidateAddresses
                     }
                 },
                 {
@@ -456,6 +458,54 @@ namespace Nager.EmailAuthentication
                 Severity = ErrorSeverity.Error,
                 ErrorMessage = $"{validateRequest.Field} wrong config {validateRequest.Value}"
             });
+
+            return [.. errors];
+        }
+
+        private static ParseError[] ValidateAddresses(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            var dmarcUris = validateRequest.Value.Split(',');
+
+            foreach (var dmarcUri in dmarcUris)
+            {
+                if (!DmarcEmailDetail.TryParse(dmarcUri.Trim(), out var dmarcEmailDetail))
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} wrong dmarc uri {dmarcUri}"
+                    });
+
+                    continue;
+                }
+
+                if (dmarcEmailDetail == null)
+                {
+                    continue;
+                }
+
+                if (!dmarcEmailDetail.IsValidEmailAddress)
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} wrong email address {dmarcEmailDetail.EmailAddress}"
+                    });
+                }
+            }
 
             return [.. errors];
         }
