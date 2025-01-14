@@ -7,6 +7,7 @@
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=100; adkim=s; aspf=s", out var dmarcDataFragment, out var parseErrors);
+
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);

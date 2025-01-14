@@ -140,19 +140,22 @@ namespace Nager.EmailAuthentication
                 {
                     "ri", new MappingHandler
                     {
-                        Map = value => dataFragment.ReportingInterval = value
+                        Map = value => dataFragment.ReportingInterval = value,
+                        Validate = ValidateReportingInterval
                     }
                 },
                 {
                     "adkim", new MappingHandler
                     {
-                        Map = value => dataFragment.DkimAlignmentMode = value
+                        Map = value => dataFragment.DkimAlignmentMode = value,
+                        Validate = ValidateAlignmentMode
                     }
                 },
                 {
                     "aspf", new MappingHandler
                     {
-                        Map = value => dataFragment.SpfAlignmentMode = value
+                        Map = value => dataFragment.SpfAlignmentMode = value,
+                        Validate = ValidateAlignmentMode
                     }
                 }
             };
@@ -279,7 +282,13 @@ namespace Nager.EmailAuthentication
                 return [.. errors];
             }
 
-            return [];
+            errors.Add(new ParseError
+            {
+                Severity = ErrorSeverity.Info,
+                ErrorMessage = $"{validateRequest.Field} is not required"
+            });
+
+            return [.. errors];
         }
 
         private static ParseError[] ValidateFailureReportingOptions(ValidateRequest validateRequest)
@@ -297,6 +306,12 @@ namespace Nager.EmailAuthentication
                 return [.. errors];
             }
 
+            errors.Add(new ParseError
+            {
+                Severity = ErrorSeverity.Info,
+                ErrorMessage = $"{validateRequest.Field} is not required as failure reports are not very common"
+            });
+
             var allowedOptions = new char[] { '0', '1', 'd', 's' };
 
             if (validateRequest.Value.Length == 1)
@@ -308,14 +323,141 @@ namespace Nager.EmailAuthentication
                         Severity = ErrorSeverity.Error,
                         ErrorMessage = $"{validateRequest.Field} wrong config {validateRequest.Value}"
                     });
+                }
 
-                    return [.. errors];
+                return [.. errors];
+            }
+
+            var colonIndex = validateRequest.Value.IndexOf(':');
+            if (colonIndex == -1)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} no colon found"
+                });
+
+                return [.. errors];
+            }
+
+            var parts = validateRequest.Value.Split(':');
+            foreach (var part in parts)
+            {
+                if (part.Length != 1)
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} option invalid {part}"
+                    });
+
+                    continue;
+                }
+
+                if (!allowedOptions.Contains(part[0]))
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} wrong config {part[0]}"
+                    });
                 }
             }
 
-            //TODO: Check failure reporting combination
+            return [.. errors];
+        }
+
+        private static ParseError[] ValidateReportingInterval(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            if (!int.TryParse(validateRequest.Value, out var reportInterval))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} value is not a number"
+                });
+
+                return [.. errors];
+            }
+
+            // Time interval is less than one hour
+            if (reportInterval < 3600)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Warning,
+                    ErrorMessage = $"{validateRequest.Field} value is to small"
+                });
+
+                return [.. errors];
+            }
+
+            // Time interval is greater than 2 days
+            if (reportInterval > 86400 * 2)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Warning,
+                    ErrorMessage = $"{validateRequest.Field} value is to large"
+                });
+
+                return [.. errors];
+            }
 
             return [];
+        }
+
+        private static ParseError[] ValidateAlignmentMode(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            var allowedOptions = new char[] { 'r', 's' };
+
+            if (validateRequest.Value.Length == 1)
+            {
+                if (!allowedOptions.Contains(validateRequest.Value[0]))
+                {
+                    errors.Add(new ParseError
+                    {
+                        Severity = ErrorSeverity.Error,
+                        ErrorMessage = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+                    });
+                }
+
+                return [.. errors];
+            }
+
+            errors.Add(new ParseError
+            {
+                Severity = ErrorSeverity.Error,
+                ErrorMessage = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+            });
+
+            return [.. errors];
         }
     }
 }

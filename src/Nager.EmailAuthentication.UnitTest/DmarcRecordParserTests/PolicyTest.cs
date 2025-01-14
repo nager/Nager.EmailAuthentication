@@ -7,6 +7,7 @@
         public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=Test", out var dmarcDataFragment, out var parseErrors);
+
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("Test", dmarcDataFragment.DomainPolicy);
@@ -18,6 +19,7 @@
         public void TryParse_InvalidDmarcString2_ReturnsTrueAndPopulatesDmarcRecord()
         {
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=Test;", out var dmarcDataFragment, out var parseErrors);
+
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("Test", dmarcDataFragment.DomainPolicy);
@@ -29,6 +31,7 @@
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
             var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject;", out var dmarcDataFragment, out var parseErrors);
+
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
