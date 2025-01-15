@@ -24,11 +24,11 @@
         }
 
         [TestMethod]
-        public void TryParse_CorruptDmarcString1_ReturnsTrueAndParseErrors()
+        public void TryParse_CorruptDmarcString1_ReturnsFalseAndParseErrors()
         {
             var isSuccessful = DmarcRecordParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parseErrors);
 
-            Assert.IsTrue(isSuccessful);
+            Assert.IsFalse(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.IsNotNull(parseErrors, "ParseErrors is null");
             Assert.IsTrue(parseErrors.Length == 2);

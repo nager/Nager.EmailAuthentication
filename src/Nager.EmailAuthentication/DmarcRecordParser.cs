@@ -162,6 +162,8 @@ namespace Nager.EmailAuthentication
                 }
             };
 
+            var mappingFound = false;
+
             foreach (var keyValue in parseResult.KeyValues)
             {
                 if (string.IsNullOrEmpty(keyValue.Key))
@@ -176,7 +178,9 @@ namespace Nager.EmailAuthentication
                         errors.AddRange([.. handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value })]);
                     }
                     handler.Map(keyValue.Value ?? "");
-                    
+
+                    mappingFound = true;
+
                     continue;
                 }
 
@@ -190,7 +194,7 @@ namespace Nager.EmailAuthentication
             parseErrors = errors.Count == 0 ? null : [.. errors];
             dmarcDataFragment = dataFragment;
 
-            return true;
+            return mappingFound;
         }
 
         private static ParseError[] ValidateDomainPolicy(ValidateRequest validateRequest)
