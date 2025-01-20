@@ -44,7 +44,107 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            if (!dmarcRaw.StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase))
+            var handlers = new Dictionary<string, MappingHandler<DmarcDataFragment>>
+            {
+                {
+                    "v", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.Version = value,
+                        Validate = ValidateVersion
+                    }
+                },
+                {
+                    "p", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.DomainPolicy = value,
+                        Validate = ValidateDomainPolicy
+                    }
+                },
+                {
+                    "sp", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.SubdomainPolicy = value,
+                        Validate = ValidateDomainPolicy
+                    }
+                },
+                {
+                    "rua", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.AggregateReportUri = value,
+                        Validate = ValidateAddresses
+                    }
+                },
+                {
+                    "ruf", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.ForensicReportUri = value,
+                        Validate = ValidateAddresses
+                    }
+                },
+                {
+                    "rf", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.ReportFormat = value,
+                        Validate = ValidateReportFormat
+                    }
+                },
+                {
+                    "fo", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.FailureReportingOptions = value,
+                        Validate = ValidateFailureReportingOptions
+                    }
+                },
+                {
+                    "pct", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.PolicyPercentage = value,
+                        Validate = ValidatePolicyPercentage
+                    }
+                },
+                {
+                    "ri", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.ReportingInterval = value,
+                        Validate = ValidateReportingInterval
+                    }
+                },
+                {
+                    "adkim", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.DkimAlignmentMode = value,
+                        Validate = ValidateAlignmentMode
+                    }
+                },
+                {
+                    "aspf", new MappingHandler<DmarcDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.SpfAlignmentMode = value,
+                        Validate = ValidateAlignmentMode
+                    }
+                }
+            };
+
+            var parserBase = new KeyValueParserBase<DmarcDataFragment>(handlers);
+            return parserBase.TryParse(dmarcRaw, out dmarcDataFragment, out parseErrors);
+        }
+
+        private static ParseError[] ValidateVersion(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Critical,
+                    ErrorMessage = "DMARC record is invalid: it must start with 'v=DMARC1'."
+                });
+                
+                return [.. errors];
+            }
+
+            if (!validateRequest.Value.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
             {
                 errors.Add(new ParseError
                 {
@@ -53,148 +153,7 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            var keyValueSeperator = '=';
-            var keyValueParser = new KeyValueParser.MemoryEfficientKeyValueParser(';', keyValueSeperator);
-            if (!keyValueParser.TryParse(dmarcRaw, out var parseResult))
-            {
-                dmarcDataFragment = null;
-                return false;
-            }
-
-            if (parseResult == null)
-            {
-                dmarcDataFragment = null;
-                return false;
-            }
-
-            var duplicateConfigurations = parseResult.KeyValues
-                .GroupBy(o => o.Key)
-                .Where(g => g.Count() > 1);
-
-            foreach (var duplicate in duplicateConfigurations)
-            {
-                errors.Add(new ParseError
-                {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"Duplicate configuration detected for key: '{duplicate.Key}'."
-                });
-            }
-
-            var dataFragment = new DmarcDataFragment();
-
-            var handlers = new Dictionary<string, MappingHandler>
-            {
-                {
-                    "v", new MappingHandler
-                    {
-                        Map = value => dataFragment.Version = value
-                    }
-                },
-                {
-                    "p", new MappingHandler
-                    {
-                        Map = value => dataFragment.DomainPolicy = value,
-                        Validate = ValidateDomainPolicy
-                    }
-                },
-                {
-                    "sp", new MappingHandler
-                    {
-                        Map = value => dataFragment.SubdomainPolicy = value,
-                        Validate = ValidateDomainPolicy
-                    }
-                },
-                {
-                    "rua", new MappingHandler
-                    {
-                        Map = value => dataFragment.AggregateReportUri = value,
-                        Validate = ValidateAddresses
-                    }
-                },
-                {
-                    "ruf", new MappingHandler
-                    {
-                        Map = value => dataFragment.ForensicReportUri = value,
-                        Validate = ValidateAddresses
-                    }
-                },
-                {
-                    "rf", new MappingHandler
-                    {
-                        Map = value => dataFragment.ReportFormat = value,
-                        Validate = ValidateReportFormat
-                    }
-                },
-                {
-                    "fo", new MappingHandler
-                    {
-                        Map = value => dataFragment.FailureReportingOptions = value,
-                        Validate = ValidateFailureReportingOptions
-                    }
-                },
-                {
-                    "pct", new MappingHandler
-                    {
-                        Map = value => dataFragment.PolicyPercentage = value,
-                        Validate = ValidatePolicyPercentage
-                    }
-                },
-                {
-                    "ri", new MappingHandler
-                    {
-                        Map = value => dataFragment.ReportingInterval = value,
-                        Validate = ValidateReportingInterval
-                    }
-                },
-                {
-                    "adkim", new MappingHandler
-                    {
-                        Map = value => dataFragment.DkimAlignmentMode = value,
-                        Validate = ValidateAlignmentMode
-                    }
-                },
-                {
-                    "aspf", new MappingHandler
-                    {
-                        Map = value => dataFragment.SpfAlignmentMode = value,
-                        Validate = ValidateAlignmentMode
-                    }
-                }
-            };
-
-            var mappingFound = false;
-
-            foreach (var keyValue in parseResult.KeyValues)
-            {
-                if (string.IsNullOrEmpty(keyValue.Key))
-                {
-                    continue;
-                }
-
-                if (handlers.TryGetValue(keyValue.Key.ToLowerInvariant(), out var handler))
-                {
-                    if (handler.Validate != null)
-                    {
-                        errors.AddRange([.. handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value })]);
-                    }
-                    handler.Map(keyValue.Value ?? "");
-
-                    mappingFound = true;
-
-                    continue;
-                }
-
-                errors.Add(new ParseError
-                {
-                    ErrorMessage = $"Unrecognized Part {keyValue.Key}{keyValueSeperator}{keyValue.Value}",
-                    Severity = ErrorSeverity.Warning
-                });
-            }
-
-            parseErrors = errors.Count == 0 ? null : [.. errors];
-            dmarcDataFragment = dataFragment;
-
-            return mappingFound;
+            return [.. errors];
         }
 
         private static ParseError[] ValidateDomainPolicy(ValidateRequest validateRequest)

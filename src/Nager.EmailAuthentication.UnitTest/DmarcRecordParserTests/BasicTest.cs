@@ -31,7 +31,7 @@
             Assert.IsFalse(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.IsNotNull(parseErrors, "ParseErrors is null");
-            Assert.IsTrue(parseErrors.Length == 2);
+            Assert.IsTrue(parseErrors.Length == 1);
         }
 
         [TestMethod]

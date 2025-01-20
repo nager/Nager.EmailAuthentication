@@ -15,158 +15,90 @@ namespace Nager.EmailAuthentication
             string dkimHeader,
             out DkimHeaderDataFragment? dkimHeaderDataFragment,
             out ParseError[]? parseErrors)
-        {
-            parseErrors = null;
-
-            var errors = new List<ParseError>();
-
-            if (string.IsNullOrWhiteSpace(dkimHeader))
-            {
-                dkimHeaderDataFragment = null;
-                return false;
-            }
-
-            var keyValueSeperator = '=';
-            var keyValueParser = new KeyValueParser.MemoryEfficientKeyValueParser(';', keyValueSeperator);
-            if (!keyValueParser.TryParse(dkimHeader, out var parseResult))
-            {
-                dkimHeaderDataFragment = null;
-                return false;
-            }
-
-            if (parseResult == null)
-            {
-                dkimHeaderDataFragment = null;
-                return false;
-            }
-
-            var duplicateConfigurations = parseResult.KeyValues
-                .GroupBy(o => o.Key)
-                .Where(g => g.Count() > 1);
-
-            foreach (var duplicate in duplicateConfigurations)
-            {
-                errors.Add(new ParseError
-                {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"Duplicate configuration detected for key: '{duplicate.Key}'."
-                });
-            }
-
+        {   
             var dataFragment = new DkimHeaderDataFragment();
 
-            var handlers = new Dictionary<string, MappingHandler>
+            var handlers = new Dictionary<string, MappingHandler<DkimHeaderDataFragment>>
             {
                 {
-                    "v", new MappingHandler
+                    "v", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.Version = value,
+                        Map = (dataFragment, value) => dataFragment.Version = value,
                         Validate = ValidatePositiveNumber
                     }
                 },
                 {
-                    "a", new MappingHandler
+                    "a", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.SignatureAlgorithm = value,
+                        Map = (dataFragment, value) => dataFragment.SignatureAlgorithm = value,
                         Validate = ValidateSignatureAlgorithm
                     }
                 },
                 {
-                    "b", new MappingHandler
+                    "b", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.SignatureData = value
+                        Map = (dataFragment, value) => dataFragment.SignatureData = value
                     }
                 },
                 {
-                    "bh", new MappingHandler
+                    "bh", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.BodyHash = value
+                        Map = (dataFragment, value) => dataFragment.BodyHash = value
                     }
                 },
                 {
-                    "c", new MappingHandler
+                    "c", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.MessageCanonicalization = value
+                        Map = (dataFragment, value) => dataFragment.MessageCanonicalization = value
                     }
                 },
                 {
-                    "d", new MappingHandler
+                    "d", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.Domain = value
+                        Map = (dataFragment, value) => dataFragment.Domain = value
                     }
                 },
                 {
-                    "s", new MappingHandler
+                    "s", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.Selector = value
+                        Map = (dataFragment, value) => dataFragment.Selector = value
                     }
                 },
                 {
-                    "t", new MappingHandler
+                    "t", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.Timestamp = value,
+                        Map = (dataFragment, value) => dataFragment.Timestamp = value,
                         Validate = ValidatePositiveNumber
                     }
                 },
                 {
-                    "x", new MappingHandler
+                    "x", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.SignatureExpiration = value
+                        Map = (dataFragment, value) => dataFragment.SignatureExpiration = value
                     }
                 },
                 {
-                    "h", new MappingHandler
+                    "h", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.SignedHeaderFields = value
+                        Map = (dataFragment, value) => dataFragment.SignedHeaderFields = value
                     }
                 },
                 {
-                    "q", new MappingHandler
+                    "q", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.QueryMethods = value
+                        Map = (dataFragment, value) => dataFragment.QueryMethods = value
                     }
                 },
                 {
-                    "i", new MappingHandler
+                    "i", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = value => dataFragment.AgentOrUserIdentifier = value
+                        Map = (dataFragment, value) => dataFragment.AgentOrUserIdentifier = value
                     }
                 }
             };
 
-            var mappingFound = false;
-
-            foreach (var keyValue in parseResult.KeyValues)
-            {
-                if (string.IsNullOrEmpty(keyValue.Key))
-                {
-                    continue;
-                }
-
-                if (handlers.TryGetValue(keyValue.Key.ToLowerInvariant(), out var handler))
-                {
-                    if (handler.Validate != null)
-                    {
-                        errors.AddRange([.. handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value })]);
-                    }
-                    handler.Map(keyValue.Value ?? "");
-
-                    mappingFound = true;
-
-                    continue;
-                }
-
-                errors.Add(new ParseError
-                {
-                    ErrorMessage = $"Unrecognized Part {keyValue.Key}{keyValueSeperator}{keyValue.Value}",
-                    Severity = ErrorSeverity.Warning
-                });
-            }
-
-            parseErrors = errors.Count == 0 ? null : [.. errors];
-            dkimHeaderDataFragment = dataFragment;
-
-            return mappingFound;
+            var parserBase = new KeyValueParserBase<DkimHeaderDataFragment>(handlers);
+            return parserBase.TryParse(dkimHeader, out dkimHeaderDataFragment, out parseErrors);
         }
 
         private static ParseError[] ValidatePositiveNumber(ValidateRequest validateRequest)
