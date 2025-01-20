@@ -16,8 +16,6 @@ namespace Nager.EmailAuthentication
             out DkimHeaderDataFragment? dkimHeaderDataFragment,
             out ParseError[]? parseErrors)
         {   
-            var dataFragment = new DkimHeaderDataFragment();
-
             var handlers = new Dictionary<string, MappingHandler<DkimHeaderDataFragment>>
             {
                 {

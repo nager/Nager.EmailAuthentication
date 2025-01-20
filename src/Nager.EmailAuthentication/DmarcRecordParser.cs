@@ -36,8 +36,6 @@ namespace Nager.EmailAuthentication
         {
             parseErrors = null;
 
-            var errors = new List<ParseError>();
-
             if (string.IsNullOrWhiteSpace(dmarcRaw))
             {
                 dmarcDataFragment = null;
