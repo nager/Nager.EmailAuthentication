@@ -60,13 +60,15 @@ namespace Nager.EmailAuthentication
                 {
                     "v", new MappingHandler
                     {
-                        Map = value => dataFragment.Version = value
+                        Map = value => dataFragment.Version = value,
+                        Validate = ValidatePositiveNumber
                     }
                 },
                 {
                     "a", new MappingHandler
                     {
-                        Map = value => dataFragment.SignatureAlgorithm = value
+                        Map = value => dataFragment.SignatureAlgorithm = value,
+                        Validate = ValidateSignatureAlgorithm
                     }
                 },
                 {
@@ -102,7 +104,8 @@ namespace Nager.EmailAuthentication
                 {
                     "t", new MappingHandler
                     {
-                        Map = value => dataFragment.Timestamp = value
+                        Map = value => dataFragment.Timestamp = value,
+                        Validate = ValidatePositiveNumber
                     }
                 },
                 {
@@ -164,6 +167,75 @@ namespace Nager.EmailAuthentication
             dkimHeaderDataFragment = dataFragment;
 
             return mappingFound;
+        }
+
+        private static ParseError[] ValidatePositiveNumber(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            if (!int.TryParse(validateRequest.Value, out var reportInterval))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} value is not a number"
+                });
+
+                return [.. errors];
+            }
+
+            if (int.IsNegative(reportInterval))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} number is negative"
+                });
+
+                return [.. errors];
+            }
+
+            return [];
+        }
+
+        private static ParseError[] ValidateSignatureAlgorithm(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            if (!validateRequest.Value.StartsWith("rsa-", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} starts not with rsa-"
+                });
+
+                return [.. errors];
+            }
+
+            return [];
         }
     }
 }
