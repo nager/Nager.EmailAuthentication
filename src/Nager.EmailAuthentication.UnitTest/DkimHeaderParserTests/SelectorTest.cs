@@ -7,7 +7,7 @@
         [DataRow("selector2")]
         [DataRow("google")]
         [DataTestMethod]
-        public void TryParse_ValidVersionDkimHeaderString_ReturnsTrueAndPopulatesDataFragment(string selector)
+        public void TryParse_ValidSelector_ReturnsTrueAndPopulatesDataFragment(string selector)
         {
             var dkimHeader = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
@@ -20,7 +20,7 @@
 
         [DataRow("verylongandinvalidselectorverylongandinvalidselectorverylongandinvalidselector")]
         [DataTestMethod]
-        public void TryParse_InvalidVersionDkimHeaderString_ReturnsTrueAndPopulatesDataFragment(string selector)
+        public void TryParse_InvalidSelector_ReturnsTrueAndPopulatesDataFragment(string selector)
         {
             var dkimHeader = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 

@@ -7,7 +7,7 @@
         [DataRow("2")]
         [DataRow("3")]
         [DataTestMethod]
-        public void TryParse_ValidVersionDkimHeaderString_ReturnsTrueAndPopulatesDataFragment(string version)
+        public void TryParse_ValidVersion_ReturnsTrueAndPopulatesDataFragment(string version)
         {
             var dkimHeader = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
@@ -21,7 +21,7 @@
         [DataRow("a")]
         [DataRow("a1")]
         [DataTestMethod]
-        public void TryParse_InvalidVersionDkimHeaderString_ReturnsTrueAndPopulatesDataFragment(string version)
+        public void TryParse_InvalidVersion_ReturnsTrueAndPopulatesDataFragment(string version)
         {
             var dkimHeader = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
