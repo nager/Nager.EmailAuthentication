@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nager.EmailAuthentication
 {
@@ -15,7 +16,7 @@ namespace Nager.EmailAuthentication
             string dkimHeader,
             out DkimHeaderDataFragment? dkimHeaderDataFragment,
             out ParseError[]? parseErrors)
-        {   
+        {
             var handlers = new Dictionary<string, MappingHandler<DkimHeaderDataFragment>>
             {
                 {
@@ -59,7 +60,8 @@ namespace Nager.EmailAuthentication
                 {
                     "s", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = (dataFragment, value) => dataFragment.Selector = value
+                        Map = (dataFragment, value) => dataFragment.Selector = value,
+                        Validate = ValidateSelector
                     }
                 },
                 {
@@ -166,6 +168,34 @@ namespace Nager.EmailAuthentication
             }
 
             return [];
+        }
+
+        private static ParseError[] ValidateSelector(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParseError>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            var maxDnsLabelLength = 63;
+            if (validateRequest.Value.Length > maxDnsLabelLength)
+            {
+                errors.Add(new ParseError
+                {
+                    Severity = ErrorSeverity.Error,
+                    ErrorMessage = $"selector name length limit reached"
+                });
+            }
+
+            return [.. errors];
         }
     }
 }
