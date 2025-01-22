@@ -34,7 +34,7 @@ if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment))
 **Handling Validation Errors**
 ```cs
 var dmarcRecord = "v=DMARC1; p=invalid;";
-if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parseErrors))
+if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parsingResults))
 {
 }
 ```
