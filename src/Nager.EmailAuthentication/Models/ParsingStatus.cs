@@ -1,9 +1,9 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Error Severity
+    /// Parsing Status
     /// </summary>
-    public enum ErrorSeverity
+    public enum ParsingStatus
     {
         /// <summary>
         /// Info

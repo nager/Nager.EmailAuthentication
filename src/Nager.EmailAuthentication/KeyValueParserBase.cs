@@ -32,14 +32,14 @@ namespace Nager.EmailAuthentication
         /// </summary>
         /// <param name="rawData">The raw input string containing key-value pairs.</param>
         /// <param name="dataFragment">The parsed object of type <typeparamref name="T"/> if parsing is successful; otherwise, null.</param>
-        /// <param name="parseErrors">An array of parsing errors or warnings, if any; otherwise, null.</param>
+        /// <param name="parsingResults">An array of parsing errors or warnings, if any; otherwise, null.</param>
         /// <returns>True if at least one key-value pair is successfully mapped; otherwise, false.</returns>
         public bool TryParse(
             string rawData,
             out T? dataFragment,
-            out ParseError[]? parseErrors)
+            out ParsingResult[]? parsingResults)
         {
-            parseErrors = null;
+            parsingResults = null;
 
             if (!this._keyValueParser.TryParse(rawData, out var parseResult) || parseResult == null)
             {
@@ -47,7 +47,7 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var errors = new List<ParseError>();
+            var errors = new List<ParsingResult>();
 
             // Detect duplicate keys
             var duplicateConfigurations = parseResult.KeyValues
@@ -56,10 +56,10 @@ namespace Nager.EmailAuthentication
 
             foreach (var duplicate in duplicateConfigurations)
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"Duplicate configuration detected for key: '{duplicate.Key}'."
+                    Status = ParsingStatus.Error,
+                    Message = $"Duplicate configuration detected for key: '{duplicate.Key}'."
                 });
             }
 
@@ -88,14 +88,14 @@ namespace Nager.EmailAuthentication
                     continue;
                 }
 
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    ErrorMessage = $"Unrecognized part: {keyValue.Key}{this._keyValueSeparator}{keyValue.Value}",
-                    Severity = ErrorSeverity.Warning
+                    Message = $"Unrecognized part: {keyValue.Key}{this._keyValueSeparator}{keyValue.Value}",
+                    Status = ParsingStatus.Warning
                 });
             }
 
-            parseErrors = errors.Count == 0 ? null : [.. errors];
+            parsingResults = errors.Count == 0 ? null : [.. errors];
             dataFragment = tempDataFragment;
 
             return mappingFound;

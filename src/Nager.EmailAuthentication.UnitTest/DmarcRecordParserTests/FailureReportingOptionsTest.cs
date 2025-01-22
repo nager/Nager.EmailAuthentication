@@ -12,14 +12,14 @@
         [DataTestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord(string failureReportingOptions)
         {
-            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parseErrors);
+            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
             Assert.AreEqual(failureReportingOptions, dmarcDataFragment.FailureReportingOptions);
-            Assert.IsNotNull(parseErrors, "ParseErrors is null");
-            Assert.IsTrue(parseErrors.Length == 1);
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.IsTrue(parsingResults.Length == 1);
         }
 
         [DataRow("a", 2)]
@@ -29,16 +29,16 @@
         [DataRow("wrong", 2)]
         [DataRow("s:x:dd", 3)]
         [DataTestMethod]
-        public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecordWithParseErrors(string failureReportingOptions, int parseErrorCount)
+        public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecordWithParseErrors(string failureReportingOptions, int parsingResultsCount)
         {
-            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parseErrors);
+            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
             Assert.AreEqual(failureReportingOptions, dmarcDataFragment.FailureReportingOptions);
-            Assert.IsNotNull(parseErrors, "ParseErrors is null");
-            Assert.IsTrue(parseErrors.Length == parseErrorCount);
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.IsTrue(parsingResults.Length == parsingResultsCount);
         }
     }
 }

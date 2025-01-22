@@ -15,8 +15,8 @@ namespace Nager.EmailAuthentication
 
         /// <summary>
         /// Gets or sets the optional validation logic for the input string.
-        /// Returns an array of <see cref="ParseError"/> objects indicating validation issues, or null if validation is not performed.
+        /// Returns an array of <see cref="ParsingResult"/> objects indicating validation issues, or null if validation is not performed.
         /// </summary>
-        public Func<ValidateRequest, ParseError[]>? Validate { get; set; }
+        public Func<ValidateRequest, ParsingResult[]>? Validate { get; set; }
     }
 }

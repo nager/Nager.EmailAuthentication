@@ -1,5 +1,4 @@
 ﻿using Nager.EmailAuthentication.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nager.EmailAuthentication
 {
@@ -15,7 +14,7 @@ namespace Nager.EmailAuthentication
         public static bool TryParse(
             string dkimHeader,
             out DkimHeaderDataFragment? dkimHeaderDataFragment,
-            out ParseError[]? parseErrors)
+            out ParsingResult[]? parsingResults)
         {
             var handlers = new Dictionary<string, MappingHandler<DkimHeaderDataFragment>>
             {
@@ -80,7 +79,8 @@ namespace Nager.EmailAuthentication
                 {
                     "h", new MappingHandler<DkimHeaderDataFragment>
                     {
-                        Map = (dataFragment, value) => dataFragment.SignedHeaderFields = value
+                        Map = (dataFragment, value) => dataFragment.SignedHeaderFields = value,
+                        Validate = ValidateSignedHeaderFields
                     }
                 },
                 {
@@ -98,19 +98,19 @@ namespace Nager.EmailAuthentication
             };
 
             var parserBase = new KeyValueParserBase<DkimHeaderDataFragment>(handlers);
-            return parserBase.TryParse(dkimHeader, out dkimHeaderDataFragment, out parseErrors);
+            return parserBase.TryParse(dkimHeader, out dkimHeaderDataFragment, out parsingResults);
         }
 
-        private static ParseError[] ValidatePositiveNumber(ValidateRequest validateRequest)
+        private static ParsingResult[] ValidatePositiveNumber(ValidateRequest validateRequest)
         {
-            var errors = new List<ParseError>();
+            var errors = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} is empty"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} is empty"
                 });
 
                 return [.. errors];
@@ -118,10 +118,10 @@ namespace Nager.EmailAuthentication
 
             if (!int.TryParse(validateRequest.Value, out var reportInterval))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} value is not a number"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} value is not a number"
                 });
 
                 return [.. errors];
@@ -129,10 +129,10 @@ namespace Nager.EmailAuthentication
 
             if (int.IsNegative(reportInterval))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} number is negative"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} number is negative"
                 });
 
                 return [.. errors];
@@ -141,16 +141,16 @@ namespace Nager.EmailAuthentication
             return [];
         }
 
-        private static ParseError[] ValidateSignatureAlgorithm(ValidateRequest validateRequest)
+        private static ParsingResult[] ValidateSignatureAlgorithm(ValidateRequest validateRequest)
         {
-            var errors = new List<ParseError>();
+            var errors = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} is empty"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} is empty"
                 });
 
                 return [.. errors];
@@ -158,10 +158,10 @@ namespace Nager.EmailAuthentication
 
             if (!validateRequest.Value.StartsWith("rsa-", StringComparison.OrdinalIgnoreCase))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} starts not with rsa-"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} starts not with rsa-"
                 });
 
                 return [.. errors];
@@ -170,16 +170,16 @@ namespace Nager.EmailAuthentication
             return [];
         }
 
-        private static ParseError[] ValidateSelector(ValidateRequest validateRequest)
+        private static ParsingResult[] ValidateSelector(ValidateRequest validateRequest)
         {
-            var errors = new List<ParseError>();
+            var errors = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"{validateRequest.Field} is empty"
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} is empty"
                 });
 
                 return [.. errors];
@@ -188,12 +188,59 @@ namespace Nager.EmailAuthentication
             var maxDnsLabelLength = 63;
             if (validateRequest.Value.Length > maxDnsLabelLength)
             {
-                errors.Add(new ParseError
+                errors.Add(new ParsingResult
                 {
-                    Severity = ErrorSeverity.Error,
-                    ErrorMessage = $"selector name length limit reached"
+                    Status = ParsingStatus.Error,
+                    Message = $"selector name length limit reached"
                 });
             }
+
+            return [.. errors];
+        }
+
+        private static ParsingResult[] ValidateSignedHeaderFields(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParsingResult>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} is empty"
+                });
+
+                return [.. errors];
+            }
+
+            var importantHeaders = new string[] { "from", "to", "subject" };
+
+            var colonIndex = validateRequest.Value.IndexOf(':');
+            if (colonIndex == -1)
+            {
+                errors.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Message = $"{validateRequest.Field} no colon found"
+                });
+
+                return [.. errors];
+            }
+
+            var parts = validateRequest.Value.Split(':');
+
+            //https://security.stackexchange.com/questions/265408/how-many-times-need-e-mail-headers-be-signed-with-dkim-to-mitigate-dkim-header-i#:~:text=If%20the%20e%2Dmail%20uses,field%20of%20the%20DKIM%20signature.
+            var groupedHeaders = parts.GroupBy(o => o).Select(g => new { Key = g.Key, Count = g.Count() });
+            foreach (var groupedHeader in groupedHeaders)
+            {
+                if (groupedHeader.Count == 2)
+                {
+                    errors.Add(new ParsingResult { Status = ParsingStatus.Info, Message = $"{groupedHeader.Key} oversigning detected" });
+                }
+            }
+
+            //TODO: Check important Headers
+            //TODO: check that headers are signed at most twice (only oversigning)
 
             return [.. errors];
         }
