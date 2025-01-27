@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.UnitTest.DkimHeaderParserTests
+﻿namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 {
     [TestClass]
     public sealed class VersionTest
@@ -9,9 +9,9 @@
         [DataTestMethod]
         public void TryParse_ValidVersion_ReturnsTrueAndPopulatesDataFragment(string version)
         {
-            var dkimHeader = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
+            var dkimSignature = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimHeaderParser.TryParse(dkimHeader, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimHeaderDataFragment);
@@ -23,9 +23,9 @@
         [DataTestMethod]
         public void TryParse_InvalidVersion_ReturnsTrueAndPopulatesDataFragment(string version)
         {
-            var dkimHeader = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
+            var dkimSignature = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimHeaderParser.TryParse(dkimHeader, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimHeaderDataFragment);

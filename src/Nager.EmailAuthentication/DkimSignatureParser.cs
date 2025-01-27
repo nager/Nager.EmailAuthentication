@@ -1,104 +1,121 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.Handlers;
+using Nager.EmailAuthentication.Models;
 
 namespace Nager.EmailAuthentication
 {
-    public static class DkimHeaderParser
+    /// <summary>
+    /// Dkim Signature Parser
+    /// </summary>
+    public static class DkimSignatureParser
     {
+        /// <summary>
+        /// TryParse
+        /// </summary>
+        /// <param name="dkimSignature"></param>
+        /// <param name="dkimSignatureDataFragment"></param>
+        /// <returns></returns>
         public static bool TryParse(
-            string dkimHeader,
-            out DkimHeaderDataFragment? dkimHeaderDataFragment)
+            string dkimSignature,
+            out DkimSignatureDataFragment? dkimSignatureDataFragment)
         {
-            return TryParse(dkimHeader, out dkimHeaderDataFragment, out _);
+            return TryParse(dkimSignature, out dkimSignatureDataFragment, out _);
         }
 
+        /// <summary>
+        /// TryParse
+        /// </summary>
+        /// <param name="dkimSignature"></param>
+        /// <param name="dkimSignatureDataFragment"></param>
+        /// <param name="parsingResults"></param>
+        /// <returns></returns>
         public static bool TryParse(
-            string dkimHeader,
-            out DkimHeaderDataFragment? dkimHeaderDataFragment,
+            string dkimSignature,
+            out DkimSignatureDataFragment? dkimSignatureDataFragment,
             out ParsingResult[]? parsingResults)
         {
-            var handlers = new Dictionary<string, MappingHandler<DkimHeaderDataFragment>>
+            var handlers = new Dictionary<string, MappingHandler<DkimSignatureDataFragment>>
             {
                 {
-                    "v", new MappingHandler<DkimHeaderDataFragment>
+                    "v", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Version = value,
                         Validate = ValidatePositiveNumber
                     }
                 },
                 {
-                    "a", new MappingHandler<DkimHeaderDataFragment>
+                    "a", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SignatureAlgorithm = value,
                         Validate = ValidateSignatureAlgorithm
                     }
                 },
                 {
-                    "b", new MappingHandler<DkimHeaderDataFragment>
+                    "b", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SignatureData = value
                     }
                 },
                 {
-                    "bh", new MappingHandler<DkimHeaderDataFragment>
+                    "bh", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.BodyHash = value
                     }
                 },
                 {
-                    "c", new MappingHandler<DkimHeaderDataFragment>
+                    "c", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.MessageCanonicalization = value
                     }
                 },
                 {
-                    "d", new MappingHandler<DkimHeaderDataFragment>
+                    "d", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Domain = value
                     }
                 },
                 {
-                    "s", new MappingHandler<DkimHeaderDataFragment>
+                    "s", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Selector = value,
                         Validate = ValidateSelector
                     }
                 },
                 {
-                    "t", new MappingHandler<DkimHeaderDataFragment>
+                    "t", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Timestamp = value,
                         Validate = ValidatePositiveNumber
                     }
                 },
                 {
-                    "x", new MappingHandler<DkimHeaderDataFragment>
+                    "x", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SignatureExpiration = value
                     }
                 },
                 {
-                    "h", new MappingHandler<DkimHeaderDataFragment>
+                    "h", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SignedHeaderFields = value,
                         Validate = ValidateSignedHeaderFields
                     }
                 },
                 {
-                    "q", new MappingHandler<DkimHeaderDataFragment>
+                    "q", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.QueryMethods = value
                     }
                 },
                 {
-                    "i", new MappingHandler<DkimHeaderDataFragment>
+                    "i", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.AgentOrUserIdentifier = value
                     }
                 }
             };
 
-            var parserBase = new KeyValueParserBase<DkimHeaderDataFragment>(handlers);
-            return parserBase.TryParse(dkimHeader, out dkimHeaderDataFragment, out parsingResults);
+            var parserBase = new KeyValueParserBase<DkimSignatureDataFragment>(handlers);
+            return parserBase.TryParse(dkimSignature, out dkimSignatureDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidatePositiveNumber(ValidateRequest validateRequest)

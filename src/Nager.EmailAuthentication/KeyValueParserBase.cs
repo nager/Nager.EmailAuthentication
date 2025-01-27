@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.Handlers;
+using Nager.EmailAuthentication.Models;
 using Nager.KeyValueParser;
 
 namespace Nager.EmailAuthentication

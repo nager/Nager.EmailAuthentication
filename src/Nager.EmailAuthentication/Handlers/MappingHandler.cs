@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.Models;
 
-namespace Nager.EmailAuthentication
+namespace Nager.EmailAuthentication.Handlers
 {
     /// <summary>
     /// Represents a handler for mapping and validating input data.

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models
 {
-    public class DkimHeaderDataFragment
+    /// <summary>
+    /// Dkim Signature Data Fragment
+    /// </summary>
+    public class DkimSignatureDataFragment
     {
         /// <summary>
         /// Dkim Version <strong>(v=)</strong>
