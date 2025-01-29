@@ -1,6 +1,7 @@
 ﻿using Nager.EmailAuthentication.Handlers;
 using Nager.EmailAuthentication.Models;
 using System.Buffers.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
 {
@@ -16,8 +17,8 @@ namespace Nager.EmailAuthentication
         /// <param name="dkimPublicKeyRecordDataFragment"></param>
         /// <returns></returns>
         public static bool TryParse(
-            string dkimPublicKeyRecord,
-            out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment)
+            string? dkimPublicKeyRecord,
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment)
         {
             return TryParse(dkimPublicKeyRecord, out dkimPublicKeyRecordDataFragment, out _);
         }
@@ -30,10 +31,18 @@ namespace Nager.EmailAuthentication
         /// <param name="parsingResults"></param>
         /// <returns></returns>
         public static bool TryParse(
-            string dkimPublicKeyRecord,
-            out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment,
+            string? dkimPublicKeyRecord,
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment,
             out ParsingResult[]? parsingResults)
         {
+            if (string.IsNullOrWhiteSpace(dkimPublicKeyRecord))
+            {
+                parsingResults = null;
+                dkimPublicKeyRecordDataFragment = null;
+
+                return false;
+            }
+
             var handlers = new Dictionary<string, MappingHandler<DkimPublicKeyRecordDataFragment>>
             {
                 {

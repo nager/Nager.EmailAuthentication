@@ -1,5 +1,6 @@
 ﻿using Nager.EmailAuthentication.Handlers;
 using Nager.EmailAuthentication.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
 {
@@ -17,8 +18,8 @@ namespace Nager.EmailAuthentication
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
-            string dmarcRaw,
-            out DmarcDataFragment? dmarcDataFragment)
+            string? dmarcRaw,
+            [NotNullWhen(true)] out DmarcDataFragment? dmarcDataFragment)
         {
             return TryParse(dmarcRaw, out dmarcDataFragment, out _);
         }
@@ -31,15 +32,15 @@ namespace Nager.EmailAuthentication
         /// <param name="parsingResults">A list of errors in the DMARC string, if any.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
-            string dmarcRaw,
-            out DmarcDataFragment? dmarcDataFragment,
+            string? dmarcRaw,
+            [NotNullWhen(true)] out DmarcDataFragment? dmarcDataFragment,
             out ParsingResult[]? parsingResults)
         {
-            parsingResults = null;
-
             if (string.IsNullOrWhiteSpace(dmarcRaw))
             {
+                parsingResults = null;
                 dmarcDataFragment = null;
+
                 return false;
             }
 

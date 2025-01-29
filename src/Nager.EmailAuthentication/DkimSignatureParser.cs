@@ -1,5 +1,6 @@
 ﻿using Nager.EmailAuthentication.Handlers;
 using Nager.EmailAuthentication.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
 {
@@ -15,8 +16,8 @@ namespace Nager.EmailAuthentication
         /// <param name="dkimSignatureDataFragment"></param>
         /// <returns></returns>
         public static bool TryParse(
-            string dkimSignature,
-            out DkimSignatureDataFragment? dkimSignatureDataFragment)
+            string? dkimSignature,
+            [NotNullWhen(true)] out DkimSignatureDataFragment? dkimSignatureDataFragment)
         {
             return TryParse(dkimSignature, out dkimSignatureDataFragment, out _);
         }
@@ -29,10 +30,18 @@ namespace Nager.EmailAuthentication
         /// <param name="parsingResults"></param>
         /// <returns></returns>
         public static bool TryParse(
-            string dkimSignature,
-            out DkimSignatureDataFragment? dkimSignatureDataFragment,
+            string? dkimSignature,
+            [NotNullWhen(true)] out DkimSignatureDataFragment? dkimSignatureDataFragment,
             out ParsingResult[]? parsingResults)
         {
+            if (string.IsNullOrWhiteSpace(dkimSignature))
+            {
+                parsingResults = null;
+                dkimSignatureDataFragment = null;
+
+                return false;
+            }
+
             var handlers = new Dictionary<string, MappingHandler<DkimSignatureDataFragment>>
             {
                 {
