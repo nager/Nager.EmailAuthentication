@@ -16,11 +16,11 @@
     <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
     <!--<PackageReleaseNotes></PackageReleaseNotes>-->
     <PackageProjectUrl>https://github.com/nager/Nager.EmailAuthentication</PackageProjectUrl>
-    <PackageTags>MailAuth Dmarc</PackageTags>
+    <PackageTags>EmailAuthentication Dmarc Dkim</PackageTags>
 	  
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <Version>1.4.2</Version>
+    <Version>1.4.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
