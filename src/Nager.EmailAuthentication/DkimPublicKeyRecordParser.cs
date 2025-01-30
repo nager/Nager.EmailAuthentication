@@ -163,7 +163,7 @@ namespace Nager.EmailAuthentication
 
         private static ParsingResult[] ValidateKeyType(ValidateRequest validateRequest)
         {
-            var allowedKeyTypes = new string[] { "rsa", "ed25519 " };
+            var allowedKeyTypes = new string[] { "rsa", "ed25519" };
 
             if (allowedKeyTypes.Contains(validateRequest.Value, StringComparer.CurrentCultureIgnoreCase))
             {

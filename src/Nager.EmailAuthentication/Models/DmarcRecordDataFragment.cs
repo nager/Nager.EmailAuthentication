@@ -5,7 +5,7 @@ namespace Nager.EmailAuthentication.Models
     /// <summary>
     /// Represents a parsed DMARC record with its components.
     /// </summary>
-    public class DmarcDataFragment
+    public class DmarcRecordDataFragment
     {
         /// <summary>
         /// Gets or sets the DMARC version (e.g., "DMARC1").

@@ -11,21 +11,119 @@ namespace Nager.EmailAuthentication
     {
         private static readonly string[] AllowedPolicies = ["none", "quarantine", "reject"];
 
+
+        public static bool TryParse(
+            DmarcRecordDataFragment dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecord? dmarcRecord)
+        {
+            dmarcRecord = null;
+
+            if (!string.IsNullOrEmpty(dmarcDataFragment.Version) &&
+                !dmarcDataFragment.Version.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var tempDmarcRecord = new DmarcRecord()
+            {
+                Version = dmarcDataFragment.Version!
+            };
+
+            if (string.IsNullOrEmpty(dmarcDataFragment.DomainPolicy))
+            {
+                return false;
+            }
+
+            if (!TryGetDmarcPolicy(dmarcDataFragment.DomainPolicy, out var domainDmarcPolicy))
+            {
+                return false;
+            }
+
+            tempDmarcRecord.DomainPolicy = domainDmarcPolicy.Value;
+            tempDmarcRecord.SubdomainPolicy = domainDmarcPolicy.Value;
+
+            if (!string.IsNullOrEmpty(dmarcDataFragment.SubdomainPolicy))
+            {
+                if (!TryGetDmarcPolicy(dmarcDataFragment.SubdomainPolicy, out var subdomainDmarcPolicy))
+                {
+                    return false;
+                }
+
+                tempDmarcRecord.SubdomainPolicy = subdomainDmarcPolicy.Value;
+            }
+
+            if (!TryGetReportingInterval(dmarcDataFragment.ReportingInterval, out var reportingInterval))
+            {
+                return false;
+            }
+
+            tempDmarcRecord.ReportingInterval = reportingInterval;
+
+            dmarcRecord = tempDmarcRecord;
+            return true;
+        }
+
+        private static bool TryGetReportingInterval(string? input, out TimeSpan reportingInterval)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                reportingInterval = TimeSpan.FromSeconds(86400);
+                return true;
+            }
+
+            if (!int.TryParse(input, out var intervalInSeconds))
+            {
+                reportingInterval = TimeSpan.Zero;
+                return false;
+            }
+
+            if (int.IsNegative(intervalInSeconds))
+            {
+                reportingInterval = TimeSpan.Zero;
+                return false;
+            }
+
+            reportingInterval = TimeSpan.FromSeconds(intervalInSeconds);
+            return true;
+        }
+
+        private static bool TryGetDmarcPolicy(string policy, [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
+        {
+            if (policy.Equals("none", StringComparison.OrdinalIgnoreCase))
+            {
+                dmarcPolicy = DmarcPolicy.None;
+                return true;
+            }
+            else if (policy.Equals("quarantine", StringComparison.OrdinalIgnoreCase))
+            {
+                dmarcPolicy = DmarcPolicy.Quarantine;
+                return true;
+            }
+            else if (policy.Equals("reject", StringComparison.OrdinalIgnoreCase))
+            {
+                dmarcPolicy = DmarcPolicy.Reject;
+                return true;
+            }
+
+            dmarcPolicy = null;
+            return false;
+        }
+
         /// <summary>
-        /// Attempts to parse a raw DMARC string into a <see cref="DmarcDataFragment"/> object.
+        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragment"/> object.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcDataFragment? dmarcDataFragment)
+            [NotNullWhen(true)] out DmarcRecordDataFragment? dmarcDataFragment)
         {
             return TryParse(dmarcRaw, out dmarcDataFragment, out _);
         }
 
         /// <summary>
-        /// Attempts to parse a raw DMARC string into a <see cref="DmarcDataFragment"/> object.
+        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragment"/> object.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
@@ -33,7 +131,7 @@ namespace Nager.EmailAuthentication
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcDataFragment? dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecordDataFragment? dmarcDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dmarcRaw))
@@ -44,80 +142,80 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var handlers = new Dictionary<string, MappingHandler<DmarcDataFragment>>
+            var handlers = new Dictionary<string, MappingHandler<DmarcRecordDataFragment>>
             {
                 {
-                    "v", new MappingHandler<DmarcDataFragment>
+                    "v", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Version = value,
                         Validate = ValidateVersion
                     }
                 },
                 {
-                    "p", new MappingHandler<DmarcDataFragment>
+                    "p", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.DomainPolicy = value,
                         Validate = ValidateDomainPolicy
                     }
                 },
                 {
-                    "sp", new MappingHandler<DmarcDataFragment>
+                    "sp", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SubdomainPolicy = value,
                         Validate = ValidateDomainPolicy
                     }
                 },
                 {
-                    "rua", new MappingHandler<DmarcDataFragment>
+                    "rua", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.AggregateReportUri = value,
                         Validate = ValidateAddresses
                     }
                 },
                 {
-                    "ruf", new MappingHandler<DmarcDataFragment>
+                    "ruf", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.ForensicReportUri = value,
                         Validate = ValidateAddresses
                     }
                 },
                 {
-                    "rf", new MappingHandler<DmarcDataFragment>
+                    "rf", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportFormat = value,
                         Validate = ValidateReportFormat
                     }
                 },
                 {
-                    "fo", new MappingHandler<DmarcDataFragment>
+                    "fo", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.FailureReportingOptions = value,
                         Validate = ValidateFailureReportingOptions
                     }
                 },
                 {
-                    "pct", new MappingHandler<DmarcDataFragment>
+                    "pct", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.PolicyPercentage = value,
                         Validate = ValidatePolicyPercentage
                     }
                 },
                 {
-                    "ri", new MappingHandler<DmarcDataFragment>
+                    "ri", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportingInterval = value,
                         Validate = ValidateReportingInterval
                     }
                 },
                 {
-                    "adkim", new MappingHandler<DmarcDataFragment>
+                    "adkim", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.DkimAlignmentMode = value,
                         Validate = ValidateAlignmentMode
                     }
                 },
                 {
-                    "aspf", new MappingHandler<DmarcDataFragment>
+                    "aspf", new MappingHandler<DmarcRecordDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.SpfAlignmentMode = value,
                         Validate = ValidateAlignmentMode
@@ -125,7 +223,7 @@ namespace Nager.EmailAuthentication
                 }
             };
 
-            var parserBase = new KeyValueParserBase<DmarcDataFragment>(handlers);
+            var parserBase = new KeyValueParserBase<DmarcRecordDataFragment>(handlers);
             return parserBase.TryParse(dmarcRaw, out dmarcDataFragment, out parsingResults);
         }
 
