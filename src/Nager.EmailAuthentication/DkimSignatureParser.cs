@@ -13,6 +13,25 @@ namespace Nager.EmailAuthentication
         /// </summary>
         /// <param name="dkimSignatureRaw"></param>
         /// <param name="dkimSignature"></param>
+        /// <returns></returns>
+        public static bool TryParse(
+            string? dkimSignatureRaw,
+            [NotNullWhen(true)] out DkimSignature? dkimSignature)
+        {
+            if (!DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dataFragment, out _))
+            {
+                dkimSignature = null;
+                return false;
+            }
+
+            return TryParse(dataFragment, out dkimSignature);
+        }
+
+        /// <summary>
+        /// TryParse
+        /// </summary>
+        /// <param name="dkimSignatureRaw"></param>
+        /// <param name="dkimSignature"></param>
         /// <param name="parsingResults"></param>
         /// <returns></returns>
         public static bool TryParse(

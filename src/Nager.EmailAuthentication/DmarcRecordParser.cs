@@ -10,6 +10,19 @@ namespace Nager.EmailAuthentication
     {
         public static bool TryParse(
             string? dmarcRaw,
+            [NotNullWhen(true)] out DmarcRecord? dmarcRecord)
+        {
+            if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out _))
+            {
+                dmarcRecord = null;
+                return false;
+            }
+
+            return TryParse(dataFragment, out dmarcRecord);
+        }
+
+        public static bool TryParse(
+            string? dmarcRaw,
             [NotNullWhen(true)] out DmarcRecord? dmarcRecord,
             out ParsingResult[]? parsingResults)
         {
