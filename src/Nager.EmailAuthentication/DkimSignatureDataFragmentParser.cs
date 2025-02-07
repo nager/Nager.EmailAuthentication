@@ -1,5 +1,6 @@
 ﻿using Nager.EmailAuthentication.Handlers;
 using Nager.EmailAuthentication.Models;
+using Nager.EmailAuthentication.RegexProviders;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
@@ -79,7 +80,8 @@ namespace Nager.EmailAuthentication
                 {
                     "d", new MappingHandler<DkimSignatureDataFragment>
                     {
-                        Map = (dataFragment, value) => dataFragment.SigningDomainIdentifier = value
+                        Map = (dataFragment, value) => dataFragment.SigningDomainIdentifier = value,
+                        Validate = ValidateDomain
                     }
                 },
                 {
@@ -225,6 +227,45 @@ namespace Nager.EmailAuthentication
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Selector name length limit reached"
+                });
+            }
+
+            if (!DkimSelectorRegexProvider.GetRegex().IsMatch(validateRequest.Value))
+            {
+                errors.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Selector syntax invalid"
+                });
+            }
+
+            return [.. errors];
+        }
+
+        private static ParsingResult[] ValidateDomain(ValidateRequest validateRequest)
+        {
+            var errors = new List<ParsingResult>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                errors.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
+                });
+
+                return [.. errors];
+            }
+
+            if (!Uri.TryCreate($"https://{validateRequest.Value}", UriKind.Absolute, out _))
+            {
+                errors.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Critical,
+                    Field = validateRequest.Field,
+                    Message = "Invalid domain syntax"
                 });
             }
 

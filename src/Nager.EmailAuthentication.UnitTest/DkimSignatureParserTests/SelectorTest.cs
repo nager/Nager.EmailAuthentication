@@ -19,6 +19,10 @@
         }
 
         [DataRow("verylongandinvalidselectorverylongandinvalidselectorverylongandinvalidselector")]
+        [DataRow("-test")]
+        [DataRow("-test-")]
+        [DataRow("_test")]
+        [DataRow("test_")]
         [DataTestMethod]
         public void TryParse_InvalidSelector_ReturnsTrueAndPopulatesDataFragment(string selector)
         {
