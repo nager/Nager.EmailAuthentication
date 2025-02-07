@@ -11,10 +11,10 @@
         {
             var dkimSignature = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dkimHeaderDataFragment);
+            Assert.IsNotNull(dkimSignatureDataFragment);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
         }
 
@@ -25,10 +25,10 @@
         {
             var dkimSignature = $"v={version}; a=rsa-sha256; d=domain.com; s=myselector; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dkimHeaderDataFragment);
+            Assert.IsNotNull(dkimSignatureDataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
         }
     }
