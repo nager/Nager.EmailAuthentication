@@ -79,7 +79,7 @@ namespace Nager.EmailAuthentication
                 {
                     "d", new MappingHandler<DkimSignatureDataFragment>
                     {
-                        Map = (dataFragment, value) => dataFragment.Domain = value
+                        Map = (dataFragment, value) => dataFragment.SigningDomainIdentifier = value
                     }
                 },
                 {

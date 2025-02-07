@@ -1,59 +1,59 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Dkim Signature Data Fragment
+    /// Dkim Signature
     /// </summary>
-    public class DkimSignatureDataFragment
+    public class DkimSignature
     {
         /// <summary>
         /// Dkim Version <strong>(v=)</strong>
         /// </summary>
-        public string? Version { get; set; }
+        public required string Version { get; set; }
 
         /// <summary>
         /// Dkim Signature Algorithm <strong>(a=)</strong>
         /// </summary>
-        public string? SignatureAlgorithm { get; set; }
+        public SignatureAlgorithm SignatureAlgorithm { get; set; }
 
         /// <summary>
         /// Signature data <strong>(b=)</strong>
         /// </summary>
-        public string? SignatureData { get; set; }
+        public required string SignatureData { get; set; }
 
         /// <summary>
         /// Body hash <strong>(bh=)</strong>
         /// </summary>
-        public string? BodyHash { get; set; }
+        public required string BodyHash { get; set; }
 
         /// <summary>
         /// Message canonicalization <strong>(c=)</strong>
         /// </summary>
-        public string? MessageCanonicalization { get; set; }
+        public required string MessageCanonicalization { get; set; }
 
         /// <summary>
-        /// Signing Domain Identifier SDID <strong>(d=)</strong>
+        /// Signing Domain Identifier <strong>(d=)</strong>
         /// </summary>
-        public string? SigningDomainIdentifier { get; set; }
+        public required string SigningDomainIdentifier { get; set; }
 
         /// <summary>
         /// Selector <strong>(s=)</strong>
         /// </summary>
-        public string? Selector { get; set; }
+        public required string Selector { get; set; }
 
         /// <summary>
         /// Signature Timestamp <strong>(t=)</strong>
         /// </summary>
-        public string? Timestamp { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// Signature Expiration <strong>(x=)</strong>
         /// </summary>
-        public string? SignatureExpiration { get; set; }
+        public DateTimeOffset? SignatureExpiration { get; set; }
 
         /// <summary>
         /// Signed header fields <strong>(h=)</strong>
         /// </summary>
-        public string? SignedHeaderFields { get; set; }
+        public string[] SignedHeaderFields { get; set; } = [];
 
         /// <summary>
         /// Query Methods, default is "dns/txt" <strong>(q=)</strong>
