@@ -84,6 +84,7 @@ namespace Nager.EmailAuthentication
                             errors.AddRange(mappingErrors);
                         }
                     }
+
                     handler.Map(tempDataFragment, keyValue.Value ?? "");
                     mappingFound = true;
                     continue;
@@ -91,6 +92,7 @@ namespace Nager.EmailAuthentication
 
                 errors.Add(new ParsingResult
                 {
+                    Field = keyValue.Key,
                     Message = $"Unrecognized part: {keyValue.Key}{this._keyValueSeparator}{keyValue.Value}",
                     Status = ParsingStatus.Warning
                 });

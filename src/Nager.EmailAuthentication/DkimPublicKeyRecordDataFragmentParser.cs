@@ -99,6 +99,7 @@ namespace Nager.EmailAuthentication
                 [
                     new ParsingResult
                     {
+                        Field = validateRequest.Field,
                         Status = ParsingStatus.Critical,
                         Message = "Public key data is emtpty"
                     }
@@ -114,6 +115,7 @@ namespace Nager.EmailAuthentication
             [
                 new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Critical,
                     Message = "Invalid Public Key data, not base64 encoded"
                 }
@@ -129,6 +131,7 @@ namespace Nager.EmailAuthentication
                 return [
                     new ParsingResult
                     {
+                        Field = validateRequest.Field,
                         Status = ParsingStatus.Critical,
                         Message = "DKIM record is invalid: it must start with 'v=DKIM1' if it specified"
                     }
@@ -143,6 +146,7 @@ namespace Nager.EmailAuthentication
             return [
                 new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Critical,
                     Message = "DKIM record is invalid: it must start with 'v=DKIM1'."
                 }
@@ -155,6 +159,7 @@ namespace Nager.EmailAuthentication
             [
                 new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Warning,
                     Message = "Granularity is deprecated."
                 }
@@ -174,6 +179,7 @@ namespace Nager.EmailAuthentication
             [
                 new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Critical,
                     Message = "The type of the key is invalid"
                 }

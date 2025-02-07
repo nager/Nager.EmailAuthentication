@@ -135,6 +135,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} is empty"
                 });
@@ -146,6 +147,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} value is not a number"
                 });
@@ -157,6 +159,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} number is negative"
                 });
@@ -175,6 +178,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} is empty"
                 });
@@ -186,6 +190,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} starts not with rsa-"
                 });
@@ -204,6 +209,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} is empty"
                 });
@@ -216,6 +222,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"selector name length limit reached"
                 });
@@ -232,6 +239,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} is empty"
                 });
@@ -246,6 +254,7 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
+                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
                     Message = $"{validateRequest.Field} no colon found"
                 });
@@ -261,7 +270,12 @@ namespace Nager.EmailAuthentication
             {
                 if (groupedHeader.Count == 2)
                 {
-                    errors.Add(new ParsingResult { Status = ParsingStatus.Info, Message = $"{groupedHeader.Key} oversigning detected" });
+                    errors.Add(new ParsingResult
+                    {
+                        Field = validateRequest.Field,
+                        Status = ParsingStatus.Info,
+                        Message = $"{groupedHeader.Key} oversigning detected"
+                    });
                 }
             }
 
