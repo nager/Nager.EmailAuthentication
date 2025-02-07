@@ -9,7 +9,7 @@ namespace Nager.EmailAuthentication
     public static class DmarcRecordParser
     {
         public static bool TryParse(
-            string dmarcRaw,
+            string? dmarcRaw,
             [NotNullWhen(true)] out DmarcRecord? dmarcRecord,
             out ParsingResult[]? parsingResults)
         {
