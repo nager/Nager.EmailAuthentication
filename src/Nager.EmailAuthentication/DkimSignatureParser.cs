@@ -93,7 +93,7 @@ namespace Nager.EmailAuthentication
             {
                 Version = dkimSignatureDataFragment.Version,
                 SigningDomainIdentifier = dkimSignatureDataFragment.SigningDomainIdentifier.Trim(' ', '\t'),
-                Selector = dkimSignatureDataFragment.Selector,
+                Selector = dkimSignatureDataFragment.Selector.Trim(' ', '\t'),
                 BodyHash = dkimSignatureDataFragment.BodyHash,
                 QueryMethods = dkimSignatureDataFragment.QueryMethods,
                 SignatureData = dkimSignatureDataFragment.SignatureData,
