@@ -6,7 +6,8 @@
         [TestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; ri=86400;", out var dmarcDataFragment, out var parsingResults);
+            var dmarcRaw = "v=DMARC1; p=reject; ri=86400;";
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -18,7 +19,8 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString1_ReturnsTrueWithErrors()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; ri=1000;", out var dmarcDataFragment, out var parsingResults);
+            var dmarcRaw = "v=DMARC1; p=reject; ri=1000;";
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -31,7 +33,8 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString2_ReturnsTrueWithErrors()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; ri=1000000;", out var dmarcDataFragment, out var parsingResults);
+            var dmarcRaw = "v=DMARC1; p=reject; ri=1000000;";
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -44,7 +47,8 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString3_ReturnsTrueWithErrors()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; ri=-1000000;", out var dmarcDataFragment, out var parsingResults);
+            var dmarcRaw = "v=DMARC1; p=reject; ri=-1000000;";
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);

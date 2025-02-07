@@ -11,7 +11,7 @@
         {
             var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimHeaderDataFragment);
@@ -24,7 +24,7 @@
         {
             var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimHeaderDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimHeaderDataFragment);

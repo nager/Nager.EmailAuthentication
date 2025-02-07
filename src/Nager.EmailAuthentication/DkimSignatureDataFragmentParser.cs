@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace Nager.EmailAuthentication
 {
     /// <summary>
-    /// Dkim Signature Parser
+    /// Dkim Signature Data Fragment Parser
     /// </summary>
-    public static class DkimSignatureParser
+    public static class DkimSignatureDataFragmentParser
     {
         /// <summary>
         /// TryParse

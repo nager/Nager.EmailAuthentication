@@ -6,7 +6,7 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -16,7 +16,7 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString2_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC1", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -26,7 +26,7 @@
         [TestMethod]
         public void TryParse_CorruptDmarcString1_ReturnsFalseAndParseErrors()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsFalse(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -37,7 +37,7 @@
         [TestMethod]
         public void TryParse_CorruptDmarcString2_ReturnsFalse()
         {
-            var isSuccessful = DmarcRecordParser.TryParse(" ", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(" ", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsFalse(isSuccessful);
             Assert.IsNull(dmarcDataFragment);

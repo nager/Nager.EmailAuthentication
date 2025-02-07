@@ -6,7 +6,7 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=Test", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC1; p=Test", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -18,7 +18,7 @@
         [TestMethod]
         public void TryParse_InvalidDmarcString2_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=Test;", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC1; p=Test;", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -30,7 +30,7 @@
         [TestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject;", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC1; p=reject;", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -41,7 +41,7 @@
         [TestMethod]
         public void TryParse_ValidDmarcString2_ReturnsTrueAndPopulatesDmarcRecord()
         {
-            var isSuccessful = DmarcRecordParser.TryParse("v=DMARC1; p=reject; sp=none;", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse("v=DMARC1; p=reject; sp=none;", out var dmarcDataFragment, out var parsingResults);
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
             Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);

@@ -12,7 +12,7 @@
         [DataTestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord(string failureReportingOptions)
         {
-            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
@@ -31,7 +31,7 @@
         [DataTestMethod]
         public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecordWithParseErrors(string failureReportingOptions, int parsingResultsCount)
         {
-            var isSuccessful = DmarcRecordParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcDataFragment);
