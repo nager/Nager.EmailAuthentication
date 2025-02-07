@@ -9,8 +9,6 @@ namespace Nager.EmailAuthentication
     /// </summary>
     public static class DmarcRecordDataFragmentParser
     {
-        private static readonly string[] AllowedPolicies = ["none", "quarantine", "reject"];
-
         /// <summary>
         /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragment"/> object.
         /// </summary>
@@ -164,8 +162,9 @@ namespace Nager.EmailAuthentication
             }
 
             var errors = new List<ParsingResult>();
+            var allowedPolicies = Enum.GetNames<DmarcPolicy>();
 
-            var domainPolicy = AllowedPolicies
+            var domainPolicy = allowedPolicies
                 .Where(policy => policy.Equals(validateRequest.Value, StringComparison.OrdinalIgnoreCase))
                 .SingleOrDefault();
 

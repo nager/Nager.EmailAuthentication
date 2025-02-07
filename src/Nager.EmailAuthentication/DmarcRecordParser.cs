@@ -41,15 +41,19 @@ namespace Nager.EmailAuthentication
         {
             dmarcRecord = null;
 
-            if (!string.IsNullOrEmpty(dmarcDataFragment.Version) &&
-                !dmarcDataFragment.Version.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(dmarcDataFragment.Version))
+            {
+                return false;
+            }
+
+            if (!dmarcDataFragment.Version.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
             var tempDmarcRecord = new DmarcRecord()
             {
-                Version = dmarcDataFragment.Version!
+                Version = dmarcDataFragment.Version
             };
 
             if (string.IsNullOrEmpty(dmarcDataFragment.DomainPolicy))
@@ -116,19 +120,9 @@ namespace Nager.EmailAuthentication
             string policy,
             [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
         {
-            if (policy.Equals("none", StringComparison.OrdinalIgnoreCase))
+            if (Enum.TryParse(policy, true, out DmarcPolicy parsedPolicy))
             {
-                dmarcPolicy = DmarcPolicy.None;
-                return true;
-            }
-            else if (policy.Equals("quarantine", StringComparison.OrdinalIgnoreCase))
-            {
-                dmarcPolicy = DmarcPolicy.Quarantine;
-                return true;
-            }
-            else if (policy.Equals("reject", StringComparison.OrdinalIgnoreCase))
-            {
-                dmarcPolicy = DmarcPolicy.Reject;
+                dmarcPolicy = parsedPolicy;
                 return true;
             }
 
