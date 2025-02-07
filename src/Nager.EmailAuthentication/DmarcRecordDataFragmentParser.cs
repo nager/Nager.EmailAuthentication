@@ -135,8 +135,8 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Critical,
+                    Field = validateRequest.Field,
                     Message = "DMARC record is invalid: it must start with 'v=DMARC1'."
                 });
                 
@@ -147,8 +147,8 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Critical,
+                    Field = validateRequest.Field,
                     Message = "DMARC record is invalid: it must start with 'v=DMARC1'."
                 });
             }
@@ -174,8 +174,8 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
                     Message = $"Unknown policy \"{validateRequest.Value}\""
                 });
             }
@@ -191,9 +191,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -203,9 +203,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} value is not a number"
+                    Field = validateRequest.Field,
+                    Message = "Value is not a number"
                 });
 
                 return [.. errors];
@@ -215,9 +215,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} value is not in allowed range"
+                    Field = validateRequest.Field,
+                    Message = "Value is not in allowed range"
                 });
 
                 return [.. errors];
@@ -235,7 +235,8 @@ namespace Nager.EmailAuthentication
                 errors.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -245,9 +246,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} only allow Authentication Failure Reporting Format (afrf)"
+                    Field = validateRequest.Field,
+                    Message = "Only allow Authentication Failure Reporting Format (afrf)"
                 });
 
                 return [.. errors];
@@ -255,9 +256,9 @@ namespace Nager.EmailAuthentication
 
             errors.Add(new ParsingResult
             {
-                Field = validateRequest.Field,
                 Status = ParsingStatus.Info,
-                Message = $"{validateRequest.Field} is not required"
+                Field = validateRequest.Field,
+                Message = "Is not required"
             });
 
             return [.. errors];
@@ -271,9 +272,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -282,7 +283,8 @@ namespace Nager.EmailAuthentication
             errors.Add(new ParsingResult
             {
                 Status = ParsingStatus.Info,
-                Message = $"{validateRequest.Field} is not required, as failure reports are not very common"
+                Field = validateRequest.Field,
+                Message = "Is not required, as failure reports are not very common"
             });
 
             var allowedOptions = new char[] { '0', '1', 'd', 's' };
@@ -293,9 +295,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+                        Field = validateRequest.Field,
+                        Message = $"Wrong config {validateRequest.Value}"
                     });
                 }
 
@@ -307,9 +309,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} no colon found"
+                    Field = validateRequest.Field,
+                    Message = "No colon found"
                 });
 
                 return [.. errors];
@@ -322,9 +324,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} option invalid {part}"
+                        Field = validateRequest.Field,
+                        Message = $"Option invalid {part}"
                     });
 
                     continue;
@@ -334,9 +336,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} wrong config {part[0]}"
+                        Field = validateRequest.Field,
+                        Message = $"Wrong config {part[0]}"
                     });
                 }
             }
@@ -352,9 +354,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -364,9 +366,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} value is not a number"
+                    Field = validateRequest.Field,
+                    Message = "Value is not a number"
                 });
 
                 return [.. errors];
@@ -377,9 +379,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Warning,
-                    Message = $"{validateRequest.Field} value is to small"
+                    Field = validateRequest.Field,
+                    Message = "Value is to small"
                 });
 
                 return [.. errors];
@@ -390,9 +392,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Warning,
-                    Message = $"{validateRequest.Field} value is to large"
+                    Field = validateRequest.Field,
+                    Message = "Value is to large"
                 });
 
                 return [.. errors];
@@ -409,9 +411,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -425,9 +427,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+                        Field = validateRequest.Field,
+                        Message = $"Wrong config {validateRequest.Value}"
                     });
                 }
 
@@ -436,9 +438,9 @@ namespace Nager.EmailAuthentication
 
             errors.Add(new ParsingResult
             {
-                Field = validateRequest.Field,
                 Status = ParsingStatus.Error,
-                Message = $"{validateRequest.Field} wrong config {validateRequest.Value}"
+                Field = validateRequest.Field,
+                Message = $"Wrong config {validateRequest.Value}"
             });
 
             return [.. errors];
@@ -452,9 +454,9 @@ namespace Nager.EmailAuthentication
             {
                 errors.Add(new ParsingResult
                 {
-                    Field = validateRequest.Field,
                     Status = ParsingStatus.Error,
-                    Message = $"{validateRequest.Field} is empty"
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
                 });
 
                 return [.. errors];
@@ -468,9 +470,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} wrong dmarc uri {dmarcUri}"
+                        Field = validateRequest.Field,
+                        Message = $"Wrong dmarc uri {dmarcUri}"
                     });
 
                     continue;
@@ -485,9 +487,9 @@ namespace Nager.EmailAuthentication
                 {
                     errors.Add(new ParsingResult
                     {
-                        Field = validateRequest.Field,
                         Status = ParsingStatus.Error,
-                        Message = $"{validateRequest.Field} wrong email address {dmarcEmailDetail.EmailAddress}"
+                        Field = validateRequest.Field,
+                        Message = $"Wrong email address {dmarcEmailDetail.EmailAddress}"
                     });
                 }
             }
