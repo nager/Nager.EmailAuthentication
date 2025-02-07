@@ -25,8 +25,8 @@ dotnet add package Nager.EmailAuthentication
 
 **Parsing a DMARC Record**
 ```cs
-var dmarcRecord = "v=DMARC1; p=reject;";
-if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment))
+var dmarcRecordRaw = "v=DMARC1; p=reject;";
+if (!DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord))
 {
 }
 ```
@@ -34,7 +34,7 @@ if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment))
 **Handling Validation Errors**
 ```cs
 var dmarcRecord = "v=DMARC1; p=invalid;";
-if (!DmarcRecordParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parsingResults))
+if (!DmarcRecordDataFragmentParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parsingResults))
 {
 }
 ```
