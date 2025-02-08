@@ -32,7 +32,8 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsNotNull(dkimSignature);
             Assert.AreEqual("1", dkimSignature.Version);
             Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignature.SignatureAlgorithm);
-            Assert.AreEqual("relaxed/simple", dkimSignature.MessageCanonicalization);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationBody);
             Assert.AreEqual("dns/txt", dkimSignature.QueryMethods);
             Assert.AreEqual("domain.com", dkimSignature.SigningDomainIdentifier);
             Assert.AreEqual("noreply@domain.com", dkimSignature.AgentOrUserIdentifier);

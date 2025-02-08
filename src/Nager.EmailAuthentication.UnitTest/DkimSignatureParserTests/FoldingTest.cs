@@ -17,7 +17,8 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 
             Assert.AreEqual("1", dkimSignature.Version);
             Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignature.SignatureAlgorithm);
-            Assert.AreEqual("relaxed/relaxed", dkimSignature.MessageCanonicalization);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationBody);
             Assert.AreEqual("dmarc.com", dkimSignature.SigningDomainIdentifier);
             Assert.AreEqual("selector1", dkimSignature.Selector);
             //Assert.AreEqual(["cc"], dkimSignature.SignedHeaderFields);

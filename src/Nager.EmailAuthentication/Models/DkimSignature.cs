@@ -26,9 +26,14 @@
         public required string BodyHash { get; set; }
 
         /// <summary>
-        /// Message canonicalization <strong>(c=)</strong>
+        /// Header Message canonicalization <strong>(c=)</strong>
         /// </summary>
-        public required string MessageCanonicalization { get; set; }
+        public required CanonicalizationType MessageCanonicalizationHeader { get; set; }
+
+        /// <summary>
+        /// Body Message canonicalization <strong>(c=)</strong>
+        /// </summary>
+        public required CanonicalizationType MessageCanonicalizationBody { get; set; }
 
         /// <summary>
         /// Signing Domain Identifier <strong>(d=)</strong>

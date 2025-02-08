@@ -95,18 +95,50 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            if (string.IsNullOrEmpty(dkimSignatureDataFragment.MessageCanonicalization))
-            {
-                return false;
-            }
-
             if (!TryGetSignatureAlgorithm(dkimSignatureDataFragment.SignatureAlgorithm, out var signatureAlgorithm))
             {
                 return false;
             }
 
-            TryParseUnixTimestamp(dkimSignatureDataFragment.Timestamp, out var timestamp);
-            TryParseUnixTimestamp(dkimSignatureDataFragment.SignatureExpiration, out var signatureExpiration);
+            _ = TryParseUnixTimestamp(dkimSignatureDataFragment.Timestamp, out var timestamp);
+            _ = TryParseUnixTimestamp(dkimSignatureDataFragment.SignatureExpiration, out var signatureExpiration);
+
+            var messageCanonicalizationHeader = CanonicalizationType.Simple;
+            var messageCanonicalizationBody = CanonicalizationType.Simple;
+
+            if (!string.IsNullOrEmpty(dkimSignatureDataFragment.MessageCanonicalization))
+            {
+                var parts = dkimSignatureDataFragment.MessageCanonicalization.Split('/');
+
+                if (parts.Length >= 1)
+                {
+                    if (TryGetCanonicalizationType(parts[0], out var canonicalizationType))
+                    {
+                        messageCanonicalizationHeader = canonicalizationType.Value;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                if (parts.Length == 2)
+                {
+                    if (TryGetCanonicalizationType(parts[1], out var canonicalizationType))
+                    {
+                        messageCanonicalizationBody = canonicalizationType.Value;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                if (parts.Length > 2)
+                {
+                    return false;
+                }
+            }
 
             dkimSignature = new DkimSignature
             {
@@ -120,11 +152,31 @@ namespace Nager.EmailAuthentication
                 SignatureExpiration = signatureExpiration,
                 AgentOrUserIdentifier = dkimSignatureDataFragment.AgentOrUserIdentifier,
                 SignedHeaderFields = dkimSignatureDataFragment.SignedHeaderFields.Split(':'),
-                MessageCanonicalization = dkimSignatureDataFragment.MessageCanonicalization,
+                MessageCanonicalizationHeader = messageCanonicalizationHeader,
+                MessageCanonicalizationBody = messageCanonicalizationBody,
                 Timestamp = timestamp
             };
 
             return true;
+        }
+
+        private static bool TryGetCanonicalizationType(
+            string canonicalizationTypeRaw,
+            [NotNullWhen(true)] out CanonicalizationType? canonicalizationType)
+        {
+            if (canonicalizationTypeRaw.Equals("relaxed", StringComparison.OrdinalIgnoreCase))
+            {
+                canonicalizationType = CanonicalizationType.Relaxed;
+                return true;
+            }
+            else if (canonicalizationTypeRaw.Equals("simple", StringComparison.OrdinalIgnoreCase))
+            {
+                canonicalizationType = CanonicalizationType.Simple;
+                return true;
+            }
+
+            canonicalizationType = null;
+            return false;
         }
 
         private static bool TryGetSignatureAlgorithm(
