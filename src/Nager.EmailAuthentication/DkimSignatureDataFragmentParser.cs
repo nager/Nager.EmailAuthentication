@@ -75,6 +75,7 @@ namespace Nager.EmailAuthentication
                     "c", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.MessageCanonicalization = value
+                        //TODO: Add validate logic
                     }
                 },
                 {
