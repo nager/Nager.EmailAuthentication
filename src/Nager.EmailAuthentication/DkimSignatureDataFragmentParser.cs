@@ -189,19 +189,34 @@ namespace Nager.EmailAuthentication
                 return [.. errors];
             }
 
-            if (!validateRequest.Value.StartsWith("rsa-", StringComparison.OrdinalIgnoreCase))
+            if (validateRequest.Value.Equals("rsa-sha256", StringComparison.OrdinalIgnoreCase))
+            {
+                return [];
+            }
+            else if (validateRequest.Value.Equals("ed25519-sha256", StringComparison.OrdinalIgnoreCase))
+            {
+                return [];
+            }
+            else if (validateRequest.Value.Equals("rsa-sha1", StringComparison.OrdinalIgnoreCase))
             {
                 errors.Add(new ParsingResult
                 {
-                    Status = ParsingStatus.Error,
+                    Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
-                    Message = "Starts not with rsa-"
+                    Message = "RSA with SHA-1 as the hash algorithm. No longer secure and should not be used."
                 });
 
                 return [.. errors];
             }
 
-            return [];
+            errors.Add(new ParsingResult
+            {
+                Status = ParsingStatus.Error,
+                Field = validateRequest.Field,
+                Message = "Unknown hash algorithm used"
+            });
+
+            return [.. errors];
         }
 
         private static ParsingResult[] ValidateSelector(ValidateRequest validateRequest)

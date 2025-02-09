@@ -200,6 +200,11 @@ namespace Nager.EmailAuthentication
                 signatureAlgorithm = SignatureAlgorithm.RsaSha1;
                 return true;
             }
+            else if (signatureAlgorithmRaw.Equals("ed25519-sha256", StringComparison.OrdinalIgnoreCase))
+            {
+                signatureAlgorithm = SignatureAlgorithm.Ed25519Sha256;
+                return true;
+            }
 
             return false;
         }

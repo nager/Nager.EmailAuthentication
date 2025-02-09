@@ -13,6 +13,11 @@
         /// <summary>
         ///  RSA SHA-256
         /// </summary>
-        RsaSha256
+        RsaSha256,
+
+        /// <summary>
+        /// Ed25519 with SHA-256
+        /// </summary>
+        Ed25519Sha256
     }
 }
