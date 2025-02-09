@@ -1,19 +1,19 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Dkim Public Key Record Data Fragment
+    /// Dkim Public Key Record
     /// </summary>
-    public class DkimPublicKeyRecordDataFragment
+    public class DkimPublicKeyRecord
     {
         /// <summary>
         /// Dkim Version <strong>(v=)</strong>
         /// </summary>
-        public string? Version { get; set; }
+        public required string Version { get; set; } = "DKIM1";
 
         /// <summary>
         /// Key Type <strong>(k=)</strong>
         /// </summary>
-        public string? KeyType { get; set; }
+        public string KeyType { get; set; } = "rsa";
 
         /// <summary>
         /// Notes that may be of interest to a human <strong>(n=)</strong>
@@ -23,12 +23,7 @@
         /// <summary>
         /// Public key data <strong>(p=)</strong>
         /// </summary>
-        public string? PublicKeyData { get; set; }
-
-        /// <summary>
-        /// Granularity of the key <strong>(g=)</strong>, introduced in RFC 4871 and removed in RFC 6376.
-        /// </summary>
-        public string? Granularity { get; set; }
+        public required string PublicKeyData { get; set; }
 
         /// <summary>
         /// A set of flags that define boolean attributes <strong>(t=)</strong>

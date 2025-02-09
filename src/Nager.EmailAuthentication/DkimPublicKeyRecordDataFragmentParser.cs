@@ -161,7 +161,7 @@ namespace Nager.EmailAuthentication
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
-                    Message = "Granularity is deprecated."
+                    Message = "Granularity is deprecated. Introduced in RFC 4871 and removed in RFC 6376."
                 }
             ];
         }
