@@ -306,8 +306,7 @@ namespace Nager.EmailAuthentication
 
             var importantHeaders = new string[] { "from", "to", "subject" };
 
-            var colonIndex = validateRequest.Value.IndexOf(':');
-            if (colonIndex == -1)
+            if (!validateRequest.Value.Contains(':'))
             {
                 errors.Add(new ParsingResult
                 {
