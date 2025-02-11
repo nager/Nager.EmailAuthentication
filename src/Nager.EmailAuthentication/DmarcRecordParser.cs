@@ -125,41 +125,47 @@ namespace Nager.EmailAuthentication
 
             if (!string.IsNullOrEmpty(dmarcDataFragment.AggregateReportUri))
             {
-                var parts = dmarcDataFragment.AggregateReportUri.Split(',', StringSplitOptions.TrimEntries);
-
-                var emailDetails = new List<DmarcEmailDetail>();
-                foreach (var part in parts)
+                if (!TryParseEmailDetails(dmarcDataFragment.AggregateReportUri, out var dmarcEmailDetails))
                 {
-                    if (!DmarcEmailDetail.TryParse(part, out var dmarcEmailDetail))
-                    {
-                        return false;
-                    }
-
-                    emailDetails.Add(dmarcEmailDetail);
+                    return false;
                 }
 
-                tempDmarcRecord.AggregateReportUri = [.. emailDetails];
+                tempDmarcRecord.AggregateReportUri = dmarcEmailDetails;
             }
 
             if (!string.IsNullOrEmpty(dmarcDataFragment.ForensicReportUri))
             {
-                var parts = dmarcDataFragment.ForensicReportUri.Split(',', StringSplitOptions.TrimEntries);
-
-                var emailDetails = new List<DmarcEmailDetail>();
-                foreach (var part in parts)
+                if (!TryParseEmailDetails(dmarcDataFragment.ForensicReportUri, out var dmarcEmailDetails))
                 {
-                    if (!DmarcEmailDetail.TryParse(part, out var dmarcEmailDetail))
-                    {
-                        return false;
-                    }
-
-                    emailDetails.Add(dmarcEmailDetail);
+                    return false;
                 }
 
-                tempDmarcRecord.ForensicReportUri = [.. emailDetails];
+                tempDmarcRecord.ForensicReportUri = dmarcEmailDetails;
             }       
 
             dmarcRecord = tempDmarcRecord;
+            return true;
+        }
+
+        private static bool TryParseEmailDetails(
+            string input,
+            [NotNullWhen(true)] out DmarcEmailDetail[]? dmarcEmailDetails)
+        {
+            var parts = input.Split(',', StringSplitOptions.TrimEntries);
+            var details = new List<DmarcEmailDetail>();
+
+            foreach (var part in parts)
+            {
+                if (!DmarcEmailDetail.TryParse(part, out var emailDetail))
+                {
+                    dmarcEmailDetails = null;
+                    return false;
+                }
+
+                details.Add(emailDetail);
+            }
+
+            dmarcEmailDetails = [.. details];
             return true;
         }
 
