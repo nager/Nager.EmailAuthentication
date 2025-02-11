@@ -83,16 +83,147 @@ namespace Nager.EmailAuthentication
             {
                 return false;
             }
+            tempDmarcRecord.ReportingInterval = reportingInterval.Value;
 
-            tempDmarcRecord.ReportingInterval = reportingInterval;
+            if (!TryGetPolicyPercentage(dmarcDataFragment.PolicyPercentage, out var policyPercentage))
+            {
+                return false;
+            }
+            tempDmarcRecord.PolicyPercentage = policyPercentage.Value;
+
+            if (dmarcDataFragment.ReportFormat == null)
+            {
+                tempDmarcRecord.ReportFormat = "afrf";
+            }
+            else
+            {
+                if (!dmarcDataFragment.ReportFormat.Equals("afrf", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                tempDmarcRecord.ReportFormat = dmarcDataFragment.ReportFormat;
+            }
+
+            if (dmarcDataFragment.DkimAlignmentMode != null)
+            {
+                if (!TryGetAlignmentMode(dmarcDataFragment.DkimAlignmentMode, out var dkimAlignmentMode))
+                {
+                    return false;
+                }
+                tempDmarcRecord.DkimAlignmentMode = dkimAlignmentMode.Value;
+            }
+
+            if (dmarcDataFragment.SpfAlignmentMode != null)
+            {
+                if (!TryGetAlignmentMode(dmarcDataFragment.SpfAlignmentMode, out var spfAlignmentMode))
+                {
+                    return false;
+                }
+                tempDmarcRecord.SpfAlignmentMode = spfAlignmentMode.Value;
+            }
+
+            if (!string.IsNullOrEmpty(dmarcDataFragment.AggregateReportUri))
+            {
+                var parts = dmarcDataFragment.AggregateReportUri.Split(',', StringSplitOptions.TrimEntries);
+
+                var emailDetails = new List<DmarcEmailDetail>();
+                foreach (var part in parts)
+                {
+                    if (!DmarcEmailDetail.TryParse(part, out var dmarcEmailDetail))
+                    {
+                        return false;
+                    }
+
+                    emailDetails.Add(dmarcEmailDetail);
+                }
+
+                tempDmarcRecord.AggregateReportUri = [.. emailDetails];
+            }
+
+            if (!string.IsNullOrEmpty(dmarcDataFragment.ForensicReportUri))
+            {
+                var parts = dmarcDataFragment.ForensicReportUri.Split(',', StringSplitOptions.TrimEntries);
+
+                var emailDetails = new List<DmarcEmailDetail>();
+                foreach (var part in parts)
+                {
+                    if (!DmarcEmailDetail.TryParse(part, out var dmarcEmailDetail))
+                    {
+                        return false;
+                    }
+
+                    emailDetails.Add(dmarcEmailDetail);
+                }
+
+                tempDmarcRecord.ForensicReportUri = [.. emailDetails];
+            }       
 
             dmarcRecord = tempDmarcRecord;
             return true;
         }
 
+        private static bool TryGetAlignmentMode(
+            string? input,
+            [NotNullWhen(true)] out AlignmentMode? alignmentMode)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                alignmentMode = null;
+                return false;
+            }
+
+            if (input.Equals("s", StringComparison.OrdinalIgnoreCase))
+            {
+                alignmentMode = AlignmentMode.Strict;
+                return true;
+            }
+
+            if (input.Equals("r", StringComparison.OrdinalIgnoreCase))
+            {
+                alignmentMode = AlignmentMode.Relaxed;
+                return true;
+            }
+
+            alignmentMode = null;
+            return false;
+        }
+
+        private static bool TryGetPolicyPercentage(
+            string? input,
+            [NotNullWhen(true)] out int? policyPercentage)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                policyPercentage = 100;
+                return true;
+            }
+
+            if (!int.TryParse(input, out var tempPolicyPercentage))
+            {
+                policyPercentage = null;
+                return false;
+            }
+
+            if (int.IsNegative(tempPolicyPercentage))
+            {
+                policyPercentage = null;
+                return false;
+            }
+
+            if (tempPolicyPercentage > 100)
+            {
+                policyPercentage = null;
+                return false;
+            }
+
+            policyPercentage = tempPolicyPercentage;
+            return true;
+        }
+
         private static bool TryGetReportingInterval(
             string? input,
-            out TimeSpan reportingInterval)
+            [NotNullWhen(true)] out TimeSpan? reportingInterval)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -102,13 +233,13 @@ namespace Nager.EmailAuthentication
 
             if (!int.TryParse(input, out var intervalInSeconds))
             {
-                reportingInterval = TimeSpan.Zero;
+                reportingInterval = null;
                 return false;
             }
 
             if (int.IsNegative(intervalInSeconds))
             {
-                reportingInterval = TimeSpan.Zero;
+                reportingInterval = null;
                 return false;
             }
 
@@ -117,10 +248,10 @@ namespace Nager.EmailAuthentication
         }
 
         private static bool TryGetDmarcPolicy(
-            string policy,
+            string input,
             [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
         {
-            if (Enum.TryParse(policy, true, out DmarcPolicy parsedPolicy))
+            if (Enum.TryParse(input, true, out DmarcPolicy parsedPolicy))
             {
                 dmarcPolicy = parsedPolicy;
                 return true;

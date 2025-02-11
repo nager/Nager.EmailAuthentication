@@ -1,4 +1,7 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Mail;
+
+namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
     /// Represents the details of a DMARC email address, including validation status and maximum size.
@@ -27,7 +30,9 @@
         /// <param name="uriEmail"></param>
         /// <param name="dmarcEmailDetail"></param>
         /// <returns></returns>
-        public static bool TryParse(string uriEmail, out DmarcEmailDetail? dmarcEmailDetail)
+        public static bool TryParse(
+            string uriEmail,
+            [NotNullWhen(true)] out DmarcEmailDetail? dmarcEmailDetail)
         {
             if (string.IsNullOrEmpty(uriEmail))
             {
@@ -96,19 +101,7 @@
                 return false;
             }
 
-            var indexOfAt = emailAddress.IndexOf('@');
-            if (indexOfAt == -1)
-            {
-                return false;
-            }
-
-            var indexOfDot = emailAddress.IndexOf('.', indexOfAt);
-            if (indexOfDot == -1)
-            {
-                return false;
-            }
-
-            return true;
+            return MailAddress.TryCreate(emailAddress, out _);
         }
     }
 }

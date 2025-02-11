@@ -48,14 +48,14 @@ namespace Nager.EmailAuthentication.Models
         public string? DkimAlignmentMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the failure reporting options (e.g., "0", "1").
-        /// </summary>
-        public string? FailureReportingOptions { get; set; }
-
-        /// <summary>
         /// Gets or sets the SPF alignment mode (e.g., "r" for relaxed, "s" for strict").
         /// </summary>
         public string? SpfAlignmentMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the failure reporting options (e.g., "0", "1").
+        /// </summary>
+        public string? FailureReportingOptions { get; set; }
 
         /// <summary>
         /// Gets or sets the percentage of messages subjected to the DMARC policy (e.g., "100").
