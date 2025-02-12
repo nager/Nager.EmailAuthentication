@@ -373,6 +373,8 @@ namespace Nager.EmailAuthentication
                 return [.. errors];
             }
 
+            var reportIntervalTimeSpan = TimeSpan.FromSeconds(reportInterval);
+
             // Time interval is less than one hour
             if (reportInterval < 3600)
             {
@@ -380,7 +382,7 @@ namespace Nager.EmailAuthentication
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
-                    Message = "Value is to small"
+                    Message = $"Value is to small, {reportIntervalTimeSpan.TotalHours} hours"
                 });
 
                 return [.. errors];
@@ -393,7 +395,7 @@ namespace Nager.EmailAuthentication
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
-                    Message = "Value is to large"
+                    Message = $"Value is to large, {reportIntervalTimeSpan.TotalDays} days"
                 });
 
                 return [.. errors];
