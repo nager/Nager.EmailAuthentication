@@ -38,5 +38,27 @@
             Assert.IsNotNull(dkimPublicKeyRecordDataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
         }
+
+        [TestMethod]
+        public void TryParse_WrongDkimPublicKeyRecord1_ReturnsTrueAndPopulatesDataFragment()
+        {
+            var dkimPublicKeyRecordRaw = "v=DMARC1;p=reject;";
+
+            var isSuccessful = DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecordDataFragment, out var parsingResults);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dkimPublicKeyRecordDataFragment);
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+        }
+
+        [TestMethod]
+        public void TryParse_WrongDkimPublicKeyRecord2_ReturnsTrueAndPopulatesDataFragment()
+        {
+            var dkimPublicKeyRecordRaw = "v=DMARC1;p=reject;";
+
+            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
+            Assert.IsFalse(isSuccessful);
+            Assert.IsNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is not null");
+        }
     }
 }

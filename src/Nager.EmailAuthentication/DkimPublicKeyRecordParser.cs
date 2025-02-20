@@ -8,6 +8,21 @@ namespace Nager.EmailAuthentication
     /// </summary>
     public static class DkimPublicKeyRecordParser
     {
+        private static bool ValidateRaw(string? dkimPublicKeyRecordRaw)
+        {
+            if (string.IsNullOrWhiteSpace(dkimPublicKeyRecordRaw))
+            {
+                return false;
+            }
+
+            if (!dkimPublicKeyRecordRaw.StartsWith("v=DKIM1", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// TryParse
         /// </summary>
@@ -18,6 +33,12 @@ namespace Nager.EmailAuthentication
             string? dkimPublicKeyRecordRaw,
             [NotNullWhen(true)] out DkimPublicKeyRecord? dkimPublicKeyRecord)
         {
+            if (!ValidateRaw(dkimPublicKeyRecordRaw))
+            {
+                dkimPublicKeyRecord = null;
+                return false;
+            }
+
             if (!DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out _))
             {
                 dkimPublicKeyRecord = null;
@@ -40,6 +61,12 @@ namespace Nager.EmailAuthentication
             out ParsingResult[]? parsingResults)
         {
             if (!DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out parsingResults))
+            {
+                dkimPublicKeyRecord = null;
+                return false;
+            }
+
+            if (!ValidateRaw(dkimPublicKeyRecordRaw))
             {
                 dkimPublicKeyRecord = null;
                 return false;

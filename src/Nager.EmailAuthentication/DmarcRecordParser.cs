@@ -8,6 +8,21 @@ namespace Nager.EmailAuthentication
     /// </summary>
     public static class DmarcRecordParser
     {
+        private static bool ValidateRaw(string? dmarcRaw)
+        {
+            if (string.IsNullOrWhiteSpace(dmarcRaw))
+            {
+                return false;
+            }
+
+            if (!dmarcRaw.StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecord"/> object.
         /// </summary>
@@ -24,6 +39,12 @@ namespace Nager.EmailAuthentication
             string? dmarcRaw,
             [NotNullWhen(true)] out DmarcRecord? dmarcRecord)
         {
+            if (!ValidateRaw(dmarcRaw))
+            {
+                dmarcRecord = null;
+                return false;
+            }
+
             if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out _))
             {
                 dmarcRecord = null;
@@ -56,6 +77,12 @@ namespace Nager.EmailAuthentication
             out ParsingResult[]? parsingResults)
         {
             if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
+            {
+                dmarcRecord = null;
+                return false;
+            }
+
+            if (!ValidateRaw(dmarcRaw))
             {
                 dmarcRecord = null;
                 return false;
