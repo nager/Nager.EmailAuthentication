@@ -9,7 +9,7 @@
         [DataTestMethod]
         public void TryParse_ValidSelector_ReturnsTrueAndPopulatesDataFragment(string selector)
         {
-            var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
+            var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=from:to:reply-to:subject:date:cc:content-type; bh=testbodyhash=; b=signaturedata";
 
             var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
@@ -26,7 +26,7 @@
         [DataTestMethod]
         public void TryParse_InvalidSelector_ReturnsTrueAndPopulatesDataFragment(string selector)
         {
-            var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=message-id:from; bh=testbodyhash=; b=signaturedata";
+            var dkimSignature = $"v=1; a=rsa-sha256; d=domain.com; s={selector}; h=from:to:reply-to:subject:date:cc:content-type; bh=testbodyhash=; b=signaturedata";
 
             var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 

@@ -1,4 +1,6 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
     /// Dkim Signature Data Fragment
@@ -24,6 +26,13 @@
         /// Body hash <strong>(bh=)</strong>
         /// </summary>
         public string? BodyHash { get; set; }
+
+        /// <summary>
+        /// Body length count <strong>(l=)</strong><br/>
+        /// This tag informs the Verifier of the number of octets in the body of the email after canonicalization
+        /// included in the cryptographic hash, starting from 0 immediately following the CRLF preceding the body.
+        /// </summary>
+        public string? BodyLengthCount { get; set; }
 
         /// <summary>
         /// Message canonicalization <strong>(c=)</strong>

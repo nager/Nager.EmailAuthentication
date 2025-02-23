@@ -2,6 +2,7 @@
 using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.RegexProviders;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace Nager.EmailAuthentication
 {
@@ -49,7 +50,7 @@ namespace Nager.EmailAuthentication
                     "v", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Version = value,
-                        Validate = ValidatePositiveNumber
+                        Validate = ValidateVersion
                     }
                 },
                 {
@@ -86,6 +87,13 @@ namespace Nager.EmailAuthentication
                     }
                 },
                 {
+                    "l", new MappingHandler<DkimSignatureDataFragment>
+                    {
+                        Map = (dataFragment, value) => dataFragment.BodyLengthCount = value,
+                        Validate = ValidateBodyLengthCount
+                    }
+                },
+                {
                     "s", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Selector = value,
@@ -96,7 +104,7 @@ namespace Nager.EmailAuthentication
                     "t", new MappingHandler<DkimSignatureDataFragment>
                     {
                         Map = (dataFragment, value) => dataFragment.Timestamp = value,
-                        Validate = ValidatePositiveNumber
+                        Validate = ValidateTimestamp
                     }
                 },
                 {
@@ -130,63 +138,114 @@ namespace Nager.EmailAuthentication
             return parserBase.TryParse(dkimSignature, out dkimSignatureDataFragment, out parsingResults);
         }
 
-        private static ParsingResult[] ValidatePositiveNumber(ValidateRequest validateRequest)
+        private static ParsingResult[] ValidatePositiveNumber(
+            ValidateRequest validateRequest,
+            Func<ValidateRequest, int, ParsingResult?> additionalCheck)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            if (!int.TryParse(validateRequest.Value, out var reportInterval))
+            if (!int.TryParse(validateRequest.Value, out var number))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Value is not a number"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            if (int.IsNegative(reportInterval))
+            if (int.IsNegative(number))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Number is negative"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
+            }
+
+            var parsingResult = additionalCheck(validateRequest, number);
+            if (parsingResult != null)
+            {
+                parsingResults.Add(parsingResult);
+
+                return [.. parsingResults];
             }
 
             return [];
         }
 
+        private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)
+        {
+            static ParsingResult? CheckVersion(ValidateRequest validateRequest, int number)
+            {
+                if (number == 1)
+                {
+                    return null;
+                }
+
+                return new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Version is invalid"
+                };
+            };
+
+            return ValidatePositiveNumber(validateRequest, CheckVersion);
+        }
+
+        private static ParsingResult[] ValidateTimestamp(ValidateRequest validateRequest)
+        {
+            static ParsingResult? CheckTimestamp(ValidateRequest validateRequest, int number)
+            {
+                var timestamp = DateTimeOffset.FromUnixTimeSeconds(number);
+                if (timestamp < DateTime.UtcNow)
+                {
+                    return null;
+                }
+
+                return new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = $"The provided timestamp '{number}' is in the future"
+                };
+            };
+
+            return ValidatePositiveNumber(validateRequest, CheckTimestamp);
+        }
+
         private static ParsingResult[] ValidateSignatureAlgorithm(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (validateRequest.Value.Equals("rsa-sha256", StringComparison.OrdinalIgnoreCase))
@@ -199,46 +258,46 @@ namespace Nager.EmailAuthentication
             }
             else if (validateRequest.Value.Equals("rsa-sha1", StringComparison.OrdinalIgnoreCase))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
                     Message = "RSA with SHA-1 as the hash algorithm. No longer secure and should not be used."
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            errors.Add(new ParsingResult
+            parsingResults.Add(new ParsingResult
             {
                 Status = ParsingStatus.Error,
                 Field = validateRequest.Field,
                 Message = "Unknown hash algorithm used"
             });
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateSelector(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var maxDnsLabelLength = 63;
             if (validateRequest.Value.Length > maxDnsLabelLength)
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
@@ -248,7 +307,7 @@ namespace Nager.EmailAuthentication
 
             if (!DkimSelectorRegexProvider.GetRegex().IsMatch(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
@@ -256,28 +315,28 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateDomain(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!Uri.TryCreate($"https://{validateRequest.Value}", UriKind.Absolute, out _))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Critical,
                     Field = validateRequest.Field,
@@ -285,48 +344,72 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            return [.. errors];
+            return [.. parsingResults];
+        }
+
+        private static ParsingResult[] ValidateBodyLengthCount(ValidateRequest validateRequest)
+        {
+            static ParsingResult? CheckBodyLengthCount(ValidateRequest validateRequest, int number)
+            {
+                if (number == 0)
+                {
+                    return new ParsingResult
+                    {
+                        Status = ParsingStatus.Error,
+                        Field = validateRequest.Field,
+                        Message = "The entire body of the email has been ignored."
+                    };
+                }
+
+                return new ParsingResult
+                {
+                    Status = ParsingStatus.Warning,
+                    Field = validateRequest.Field,
+                    Message = "Manipulation of the content is possible if the length is defined for the check. The recommendation is not to set a length."
+                };
+            };
+
+            return ValidatePositiveNumber(validateRequest, CheckBodyLengthCount);
         }
 
         private static ParsingResult[] ValidateSignedHeaderFields(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
-
-            var importantHeaders = new string[] { "from", "to", "subject" };
 
             if (!validateRequest.Value.Contains(':'))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "No colon found"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var parts = validateRequest.Value.Split(':');
 
+            //TODO: check that headers are signed at most twice (only oversigning)
             //https://security.stackexchange.com/questions/265408/how-many-times-need-e-mail-headers-be-signed-with-dkim-to-mitigate-dkim-header-i#:~:text=If%20the%20e%2Dmail%20uses,field%20of%20the%20DKIM%20signature.
             var groupedHeaders = parts.GroupBy(o => o).Select(g => new { Key = g.Key, Count = g.Count() });
             foreach (var groupedHeader in groupedHeaders)
             {
                 if (groupedHeader.Count == 2)
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Info,
                         Field = validateRequest.Field,
@@ -336,9 +419,19 @@ namespace Nager.EmailAuthentication
             }
 
             //TODO: Check important Headers
-            //TODO: check that headers are signed at most twice (only oversigning)
+            var recommendedHeaders = new string[] { "from", "to", "subject", "reply-to", "date", "cc", "content-type" };
+            var missingRecommendedHeaders = recommendedHeaders.Except(groupedHeaders.Select(o => o.Key));
+            foreach (var missingRecommendedHeader in missingRecommendedHeaders)
+            {
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Info,
+                    Field = validateRequest.Field,
+                    Message = $"Missing recommended header detected {missingRecommendedHeader}"
+                });
+            }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
     }
 }

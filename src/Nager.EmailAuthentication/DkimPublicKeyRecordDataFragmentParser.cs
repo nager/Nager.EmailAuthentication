@@ -124,7 +124,7 @@ namespace Nager.EmailAuthentication
 
         private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {

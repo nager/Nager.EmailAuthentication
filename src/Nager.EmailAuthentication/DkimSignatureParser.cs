@@ -103,6 +103,17 @@ namespace Nager.EmailAuthentication
             _ = TryParseUnixTimestamp(dkimSignatureDataFragment.Timestamp, out var timestamp);
             _ = TryParseUnixTimestamp(dkimSignatureDataFragment.SignatureExpiration, out var signatureExpiration);
 
+            int? bodyLengthCount = null;
+            if (!string.IsNullOrEmpty(dkimSignatureDataFragment.BodyLengthCount))
+            {
+                if (!int.TryParse(dkimSignatureDataFragment.BodyLengthCount, out var tempBodyLengthCount))
+                {
+                    return false;
+                }
+
+                bodyLengthCount = tempBodyLengthCount;
+            }
+
             var messageCanonicalizationHeader = CanonicalizationType.Simple;
             var messageCanonicalizationBody = CanonicalizationType.Simple;
 
@@ -146,6 +157,7 @@ namespace Nager.EmailAuthentication
                 SigningDomainIdentifier = dkimSignatureDataFragment.SigningDomainIdentifier.Trim(' ', '\t'),
                 Selector = dkimSignatureDataFragment.Selector.Trim(' ', '\t'),
                 BodyHash = dkimSignatureDataFragment.BodyHash,
+                BodyLengthCount = bodyLengthCount,
                 QueryMethods = dkimSignatureDataFragment.QueryMethods,
                 SignatureData = dkimSignatureDataFragment.SignatureData,
                 SignatureAlgorithm = signatureAlgorithm.Value,

@@ -48,7 +48,7 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var errors = new List<ParsingResult>();
+            var tempParsingResults = new List<ParsingResult>();
 
             // Detect duplicate keys
             var duplicateConfigurations = parseResult.KeyValues
@@ -57,7 +57,7 @@ namespace Nager.EmailAuthentication
 
             foreach (var duplicate in duplicateConfigurations)
             {
-                errors.Add(new ParsingResult
+                tempParsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Message = $"Duplicate configuration detected for key: '{duplicate.Key}'."
@@ -81,7 +81,7 @@ namespace Nager.EmailAuthentication
                         var mappingErrors = handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value });
                         if (mappingErrors?.Length > 0)
                         {
-                            errors.AddRange(mappingErrors);
+                            tempParsingResults.AddRange(mappingErrors);
                         }
                     }
 
@@ -90,7 +90,7 @@ namespace Nager.EmailAuthentication
                     continue;
                 }
 
-                errors.Add(new ParsingResult
+                tempParsingResults.Add(new ParsingResult
                 {
                     Field = keyValue.Key,
                     Message = $"Unrecognized part: {keyValue.Key}{this._keyValueSeparator}{keyValue.Value}",
@@ -98,7 +98,7 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            parsingResults = errors.Count == 0 ? null : [.. errors];
+            parsingResults = tempParsingResults.Count == 0 ? null : [.. tempParsingResults];
             dataFragment = tempDataFragment;
 
             return mappingFound;

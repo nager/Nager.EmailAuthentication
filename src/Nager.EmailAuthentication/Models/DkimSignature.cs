@@ -26,6 +26,13 @@
         public required string BodyHash { get; set; }
 
         /// <summary>
+        /// Body length count <strong>(l=)</strong><br/>
+        /// This tag informs the Verifier of the number of octets in the body of the email after canonicalization
+        /// included in the cryptographic hash, starting from 0 immediately following the CRLF preceding the body.
+        /// </summary>
+        public int? BodyLengthCount { get; set; }
+
+        /// <summary>
         /// Header Message canonicalization <strong>(c=)</strong>
         /// </summary>
         public required CanonicalizationType MessageCanonicalizationHeader { get; set; }

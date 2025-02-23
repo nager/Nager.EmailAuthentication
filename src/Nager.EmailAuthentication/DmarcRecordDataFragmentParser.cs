@@ -129,23 +129,23 @@ namespace Nager.EmailAuthentication
 
         private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Critical,
                     Field = validateRequest.Field,
                     Message = "DMARC record is invalid: it must start with 'v=DMARC1'."
                 });
                 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!validateRequest.Value.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Critical,
                     Field = validateRequest.Field,
@@ -153,7 +153,7 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateDomainPolicy(ValidateRequest validateRequest)
@@ -163,7 +163,7 @@ namespace Nager.EmailAuthentication
                 return [];
             }
 
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
             var allowedPolicies = Enum.GetNames<DmarcPolicy>();
 
             var domainPolicy = allowedPolicies
@@ -172,7 +172,7 @@ namespace Nager.EmailAuthentication
 
             if (domainPolicy == null)
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
@@ -180,47 +180,47 @@ namespace Nager.EmailAuthentication
                 });
             }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidatePolicyPercentage(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!int.TryParse(validateRequest.Value, out var percentage))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Value is not a number"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (percentage < 0 || percentage > 100)
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Value is not in allowed range"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             return [];
@@ -228,59 +228,59 @@ namespace Nager.EmailAuthentication
 
         private static ParsingResult[] ValidateReportFormat(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!validateRequest.Value.Equals("afrf", StringComparison.OrdinalIgnoreCase))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Only allow Authentication Failure Reporting Format (afrf)"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            errors.Add(new ParsingResult
+            parsingResults.Add(new ParsingResult
             {
                 Status = ParsingStatus.Info,
                 Field = validateRequest.Field,
                 Message = "Is not required"
             });
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateFailureReportingOptions(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            errors.Add(new ParsingResult
+            parsingResults.Add(new ParsingResult
             {
                 Status = ParsingStatus.Info,
                 Field = validateRequest.Field,
@@ -293,7 +293,7 @@ namespace Nager.EmailAuthentication
             {
                 if (!allowedOptions.Contains(validateRequest.Value[0]))
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -301,19 +301,19 @@ namespace Nager.EmailAuthentication
                     });
                 }
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!validateRequest.Value.Contains(':'))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "No colon found"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var parts = validateRequest.Value.Split(':');
@@ -321,7 +321,7 @@ namespace Nager.EmailAuthentication
             {
                 if (part.Length != 1)
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -333,7 +333,7 @@ namespace Nager.EmailAuthentication
 
                 if (!allowedOptions.Contains(part[0]))
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -342,35 +342,35 @@ namespace Nager.EmailAuthentication
                 }
             }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateReportingInterval(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             if (!int.TryParse(validateRequest.Value, out var reportInterval))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Value is not a number"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var reportIntervalTimeSpan = TimeSpan.FromSeconds(reportInterval);
@@ -378,27 +378,27 @@ namespace Nager.EmailAuthentication
             // Time interval is less than one hour
             if (reportInterval < 3600)
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
                     Message = $"Value is to small, {reportIntervalTimeSpan.TotalHours} hours"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             // Time interval is greater than 2 days
             if (reportInterval > 86400 * 2)
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
                     Message = $"Value is to large, {reportIntervalTimeSpan.TotalDays} days"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             return [];
@@ -406,18 +406,18 @@ namespace Nager.EmailAuthentication
 
         private static ParsingResult[] ValidateAlignmentMode(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var allowedOptions = new char[] { 'r', 's' };
@@ -426,7 +426,7 @@ namespace Nager.EmailAuthentication
             {
                 if (!allowedOptions.Contains(validateRequest.Value[0]))
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -434,33 +434,33 @@ namespace Nager.EmailAuthentication
                     });
                 }
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
-            errors.Add(new ParsingResult
+            parsingResults.Add(new ParsingResult
             {
                 Status = ParsingStatus.Error,
                 Field = validateRequest.Field,
                 Message = $"Wrong config {validateRequest.Value}"
             });
 
-            return [.. errors];
+            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateAddresses(ValidateRequest validateRequest)
         {
-            var errors = new List<ParsingResult>();
+            var parsingResults = new List<ParsingResult>();
 
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                errors.Add(new ParsingResult
+                parsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
                     Message = "Is empty"
                 });
 
-                return [.. errors];
+                return [.. parsingResults];
             }
 
             var dmarcUris = validateRequest.Value.Split(',');
@@ -469,7 +469,7 @@ namespace Nager.EmailAuthentication
             {
                 if (!DmarcEmailDetail.TryParse(dmarcUri.Trim(), out var dmarcEmailDetail))
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -486,7 +486,7 @@ namespace Nager.EmailAuthentication
 
                 if (!dmarcEmailDetail.IsValidEmailAddress)
                 {
-                    errors.Add(new ParsingResult
+                    parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,
                         Field = validateRequest.Field,
@@ -495,7 +495,7 @@ namespace Nager.EmailAuthentication
                 }
             }
 
-            return [.. errors];
+            return [.. parsingResults];
         }
     }
 }
