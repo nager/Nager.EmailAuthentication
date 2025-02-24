@@ -2,7 +2,6 @@
 using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.RegexProviders;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 
 namespace Nager.EmailAuthentication
 {

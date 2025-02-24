@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
     /// Dkim Signature Data Fragment
