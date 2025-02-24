@@ -5,6 +5,10 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
     [TestClass]
     public sealed class FoldingTest
     {
+        /// <summary>
+        /// DKIM signature folding refers to breaking long header field lines into multiple lines for better readability
+        /// and compliance with email standards. It uses whitespace and line breaks while ensuring the signature remains valid.
+        /// </summary>
         [TestMethod]
         public void TryParse_ValidSelector_ReturnsTrueAndPopulatesDataFragment()
         {

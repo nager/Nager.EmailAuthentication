@@ -310,7 +310,7 @@ namespace Nager.EmailAuthentication
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
-                    Message = "No colon found"
+                    Message = "No colon separator found"
                 });
 
                 return [.. parsingResults];

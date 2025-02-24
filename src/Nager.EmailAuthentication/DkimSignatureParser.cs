@@ -151,6 +151,8 @@ namespace Nager.EmailAuthentication
                 }
             }
 
+            var signedHeaders = dkimSignatureDataFragment.SignedHeaderFields.Split(':', StringSplitOptions.TrimEntries);
+
             dkimSignature = new DkimSignature
             {
                 Version = dkimSignatureDataFragment.Version,
@@ -163,7 +165,7 @@ namespace Nager.EmailAuthentication
                 SignatureAlgorithm = signatureAlgorithm.Value,
                 SignatureExpiration = signatureExpiration,
                 AgentOrUserIdentifier = dkimSignatureDataFragment.AgentOrUserIdentifier,
-                SignedHeaderFields = dkimSignatureDataFragment.SignedHeaderFields.Split(':'),
+                SignedHeaderFields = signedHeaders,
                 MessageCanonicalizationHeader = messageCanonicalizationHeader,
                 MessageCanonicalizationBody = messageCanonicalizationBody,
                 Timestamp = timestamp

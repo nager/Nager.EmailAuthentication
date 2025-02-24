@@ -381,7 +381,7 @@ namespace Nager.EmailAuthentication
                 {
                     Status = ParsingStatus.Error,
                     Field = validateRequest.Field,
-                    Message = "Is empty"
+                    Message = "The signed header fields is empty, from is required"
                 });
 
                 return [.. parsingResults];
@@ -391,12 +391,10 @@ namespace Nager.EmailAuthentication
             {
                 parsingResults.Add(new ParsingResult
                 {
-                    Status = ParsingStatus.Error,
+                    Status = ParsingStatus.Info,
                     Field = validateRequest.Field,
-                    Message = "No colon found"
+                    Message = "No colon separator found"
                 });
-
-                return [.. parsingResults];
             }
 
             var parts = validateRequest.Value.Split(':');
@@ -417,16 +415,15 @@ namespace Nager.EmailAuthentication
                 }
             }
 
-            //TODO: Check important Headers
             var recommendedHeaders = new string[] { "from", "to", "subject", "reply-to", "date", "cc", "content-type" };
             var missingRecommendedHeaders = recommendedHeaders.Except(groupedHeaders.Select(o => o.Key));
             foreach (var missingRecommendedHeader in missingRecommendedHeaders)
             {
                 parsingResults.Add(new ParsingResult
                 {
-                    Status = ParsingStatus.Info,
+                    Status = ParsingStatus.Warning,
                     Field = validateRequest.Field,
-                    Message = $"Missing recommended header detected {missingRecommendedHeader}"
+                    Message = $"Missing recommended header detected '{missingRecommendedHeader}'"
                 });
             }
 
