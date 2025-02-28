@@ -19,15 +19,21 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
 
-            Assert.AreEqual("1", dkimSignature.Version);
-            Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignature.SignatureAlgorithm);
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationBody);
-            Assert.AreEqual("dmarc.com", dkimSignature.SigningDomainIdentifier);
-            Assert.AreEqual("selector1", dkimSignature.Selector);
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual("1", dkimSignatureV1.Version);
+            Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignatureV1.SignatureAlgorithm);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationBody);
+            Assert.AreEqual("dmarc.com", dkimSignatureV1.SigningDomainIdentifier);
+            Assert.AreEqual("selector1", dkimSignatureV1.Selector);
             //Assert.AreEqual(["cc"], dkimSignature.SignedHeaderFields);
-            Assert.AreEqual(new DateTimeOffset(2023, 8, 3, 3, 22, 14, TimeSpan.Zero), dkimSignature.Timestamp);
-            Assert.AreEqual(new DateTimeOffset(2023, 8, 4, 3, 22, 14, TimeSpan.Zero), dkimSignature.SignatureExpiration);
+            Assert.AreEqual(new DateTimeOffset(2023, 8, 3, 3, 22, 14, TimeSpan.Zero), dkimSignatureV1.Timestamp);
+            Assert.AreEqual(new DateTimeOffset(2023, 8, 4, 3, 22, 14, TimeSpan.Zero), dkimSignatureV1.SignatureExpiration);
             
 
             //Assert.IsNull(parsingResults, "ParsingResults is not null");

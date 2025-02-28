@@ -1,15 +1,10 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Dkim Signature Data Fragment
+    /// Dkim Signature Data Fragment V1
     /// </summary>
-    public class DkimSignatureDataFragment
+    public class DkimSignatureDataFragmentV1 : DkimSignatureDataFragmentBase
     {
-        /// <summary>
-        /// Dkim Version <strong>(v=)</strong>
-        /// </summary>
-        public string? Version { get; set; }
-
         /// <summary>
         /// Dkim Signature Algorithm <strong>(a=)</strong>
         /// </summary>

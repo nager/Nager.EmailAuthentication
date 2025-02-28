@@ -1,15 +1,10 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Dkim Signature
+    /// Represents the DKIM signature for version 1 (v=1), inheriting from <see cref="DkimSignatureBase"/>
     /// </summary>
-    public class DkimSignature
+    public class DkimSignatureV1 : DkimSignatureBase
     {
-        /// <summary>
-        /// Dkim Version <strong>(v=)</strong>
-        /// </summary>
-        public required string Version { get; set; }
-
         /// <summary>
         /// Dkim Signature Algorithm <strong>(a=)</strong>
         /// </summary>

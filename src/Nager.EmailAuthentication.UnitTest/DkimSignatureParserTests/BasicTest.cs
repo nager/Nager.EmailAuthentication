@@ -25,23 +25,29 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             var isSuccessful = DkimSignatureParser.TryParse(dkimSignatureRaw, out var dkimSignature, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dkimSignature);
 
             Assert.IsNotNull(parsingResults);
             Assert.IsTrue(parsingResults.Length > 0);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
             
-            Assert.IsNotNull(dkimSignature);
             Assert.AreEqual("1", dkimSignature.Version);
-            Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignature.SignatureAlgorithm);
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationBody);
-            Assert.AreEqual("dns/txt", dkimSignature.QueryMethods);
-            Assert.AreEqual("domain.com", dkimSignature.SigningDomainIdentifier);
-            Assert.AreEqual("noreply@domain.com", dkimSignature.AgentOrUserIdentifier);
-            Assert.AreEqual("mailjet", dkimSignature.Selector);
-            Assert.AreEqual(new DateTimeOffset(2025, 1, 16, 8, 57, 4, TimeSpan.Zero), dkimSignature.SignatureExpiration);
-            Assert.AreEqual(18, dkimSignature.SignedHeaderFields.Length);
-            Assert.AreEqual("TyN/x6t3AOfI298rgJAgZHgdWcq/XLISGen5nN3NLAc=", dkimSignature.BodyHash);
-            Assert.AreEqual("HLCLiikV92Ku/k9mGlZM0bmqPjKggGnMI0igqhXmPRzPJUC+5SUWRS6/FLUpxbX6AUGJRDYQnKKMtp6uZkYVuKG8SPZ01cUkvIiiAkczb4bK6IVvPbZOnsWqHkD6EvK3TrpIhgFfGLlcG+zIwgdDZ3O++uhpJkIX1WJlkXZYqxQ=", dkimSignature.SignatureData);
+            Assert.AreEqual(SignatureAlgorithm.RsaSha256, dkimSignatureV1.SignatureAlgorithm);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationBody);
+            Assert.AreEqual("dns/txt", dkimSignatureV1.QueryMethods);
+            Assert.AreEqual("domain.com", dkimSignatureV1.SigningDomainIdentifier);
+            Assert.AreEqual("noreply@domain.com", dkimSignatureV1.AgentOrUserIdentifier);
+            Assert.AreEqual("mailjet", dkimSignatureV1.Selector);
+            Assert.AreEqual(new DateTimeOffset(2025, 1, 16, 8, 57, 4, TimeSpan.Zero), dkimSignatureV1.SignatureExpiration);
+            Assert.AreEqual(18, dkimSignatureV1.SignedHeaderFields.Length);
+            Assert.AreEqual("TyN/x6t3AOfI298rgJAgZHgdWcq/XLISGen5nN3NLAc=", dkimSignatureV1.BodyHash);
+            Assert.AreEqual("HLCLiikV92Ku/k9mGlZM0bmqPjKggGnMI0igqhXmPRzPJUC+5SUWRS6/FLUpxbX6AUGJRDYQnKKMtp6uZkYVuKG8SPZ01cUkvIiiAkczb4bK6IVvPbZOnsWqHkD6EvK3TrpIhgFfGLlcG+zIwgdDZ3O++uhpJkIX1WJlkXZYqxQ=", dkimSignatureV1.SignatureData);
         }
     }
 }

@@ -27,8 +27,15 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationBody);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationBody);
         }
 
 
@@ -42,8 +49,15 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationBody);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationBody);
         }
 
         [TestMethod]
@@ -56,8 +70,15 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationBody);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationBody);
         }
 
         [TestMethod]
@@ -70,8 +91,15 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
-            Assert.AreEqual(CanonicalizationType.Simple, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationBody);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual(CanonicalizationType.Simple, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationBody);
         }
 
         [TestMethod]
@@ -84,8 +112,15 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignature);
             Assert.IsNull(parsingResults, "ParsingResults is not null");
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationHeader);
-            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignature.MessageCanonicalizationBody);
+
+            if (dkimSignature is not DkimSignatureV1 dkimSignatureV1)
+            {
+                Assert.Fail("Wrong DkimSignature class");
+                return;
+            }
+
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationHeader);
+            Assert.AreEqual(CanonicalizationType.Relaxed, dkimSignatureV1.MessageCanonicalizationBody);
         }
 
         [TestMethod]

@@ -16,7 +16,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimSignatureRaw,
-            [NotNullWhen(true)] out DkimSignature? dkimSignature)
+            [NotNullWhen(true)] out DkimSignatureBase? dkimSignature)
         {
             if (!DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dataFragment, out _))
             {
@@ -24,7 +24,17 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dkimSignature);
+            if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                {
+                    dkimSignature = dkimSignatureV1;
+                    return true;
+                }
+            }
+
+            dkimSignature = null;
+            return false;
         }
 
         /// <summary>
@@ -36,7 +46,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimSignatureRaw,
-            [NotNullWhen(true)] out DkimSignature? dkimSignature,
+            [NotNullWhen(true)] out DkimSignatureBase? dkimSignature,
             out ParsingResult[]? parsingResults)
         {
             if (!DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dataFragment, out parsingResults))
@@ -45,7 +55,17 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dkimSignature);
+            if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                {
+                    dkimSignature = dkimSignatureV1;
+                    return true;
+                }
+            }
+
+            dkimSignature = null;
+            return false;
         }
 
         /// <summary>
@@ -54,9 +74,9 @@ namespace Nager.EmailAuthentication
         /// <param name="dkimSignatureDataFragment"></param>
         /// <param name="dkimSignature"></param>
         /// <returns></returns>
-        public static bool TryParse(
-            DkimSignatureDataFragment? dkimSignatureDataFragment,
-            [NotNullWhen(true)] out DkimSignature? dkimSignature)
+        public static bool TryParseV1(
+            DkimSignatureDataFragmentV1? dkimSignatureDataFragment,
+            [NotNullWhen(true)] out DkimSignatureV1? dkimSignature)
         {
             dkimSignature = null;
 
@@ -153,7 +173,7 @@ namespace Nager.EmailAuthentication
 
             var signedHeaders = dkimSignatureDataFragment.SignedHeaderFields.Split(':', StringSplitOptions.TrimEntries);
 
-            dkimSignature = new DkimSignature
+            dkimSignature = new DkimSignatureV1
             {
                 Version = dkimSignatureDataFragment.Version,
                 SigningDomainIdentifier = dkimSignatureDataFragment.SigningDomainIdentifier.Trim(' ', '\t'),
