@@ -132,7 +132,7 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 
             Assert.IsFalse(isSuccessful);
             Assert.IsNull(dkimSignature);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 
             Assert.IsFalse(isSuccessful);
             Assert.IsNull(dkimSignature);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
         }
     }
 }

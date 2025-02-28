@@ -74,8 +74,8 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 {
                     "c", new MappingHandler<DkimSignatureDataFragmentV1>
                     {
-                        Map = (dataFragment, value) => dataFragment.MessageCanonicalization = value
-                        //TODO: Add validate logic
+                        Map = (dataFragment, value) => dataFragment.MessageCanonicalization = value,
+                        Validate = ValidateMessageCanonicalization
                     }
                 },
                 {
@@ -122,13 +122,15 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 {
                     "q", new MappingHandler<DkimSignatureDataFragmentV1>
                     {
-                        Map = (dataFragment, value) => dataFragment.QueryMethods = value
+                        Map = (dataFragment, value) => dataFragment.QueryMethods = value,
+                        Validate = ValidateQueryMethods
                     }
                 },
                 {
                     "i", new MappingHandler<DkimSignatureDataFragmentV1>
                     {
-                        Map = (dataFragment, value) => dataFragment.AgentOrUserIdentifier = value
+                        Map = (dataFragment, value) => dataFragment.AgentOrUserIdentifier = value,
+                        Validate = ValidateAgentOrUserIdentifier
                     }
                 }
             };
@@ -369,6 +371,121 @@ namespace Nager.EmailAuthentication.FragmentParsers
             };
 
             return ValidatePositiveNumber(validateRequest, CheckBodyLengthCount);
+        }
+
+        private static ParsingResult[] ValidateMessageCanonicalization(ValidateRequest validateRequest)
+        {
+            var parsingResults = new List<ParsingResult>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
+                });
+
+                return [.. parsingResults];
+            }
+
+            var allowedModes = new string[] { "relaxed", "simple" };
+
+            var parts = validateRequest.Value.Split('/');
+            if (parts.Length == 1)
+            {
+                var part = parts[0].ToLower();
+
+                if (allowedModes.Contains(part))
+                {
+                    return [];
+                }
+
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = $"Unknown mode {part} detected"
+                });
+
+                return [.. parsingResults];
+            }
+
+            if (parts.Length == 2)
+            {
+                if (parts.Count(part => allowedModes.Contains(part.ToLower())) == 2)
+                {
+                    return [];
+                }
+
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Unknown mode detected"
+                });
+
+                return [.. parsingResults];
+            }
+
+            parsingResults.Add(new ParsingResult
+            {
+                Status = ParsingStatus.Error,
+                Field = validateRequest.Field,
+                Message = "Too much parts"
+            });
+
+            return [.. parsingResults];
+        }
+
+        private static ParsingResult[] ValidateQueryMethods(ValidateRequest validateRequest)
+        {
+            var parsingResults = new List<ParsingResult>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
+                });
+
+                return [.. parsingResults];
+            }
+
+            if (validateRequest.Value.Equals("dns/txt", StringComparison.OrdinalIgnoreCase))
+            {
+                return [];
+            }
+
+            parsingResults.Add(new ParsingResult
+            {
+                Status = ParsingStatus.Error,
+                Field = validateRequest.Field,
+                Message = "Invalid query method"
+            });
+
+            return [];
+        }
+
+        private static ParsingResult[] ValidateAgentOrUserIdentifier(ValidateRequest validateRequest)
+        {
+            var parsingResults = new List<ParsingResult>();
+
+            if (string.IsNullOrEmpty(validateRequest.Value))
+            {
+                parsingResults.Add(new ParsingResult
+                {
+                    Status = ParsingStatus.Error,
+                    Field = validateRequest.Field,
+                    Message = "Is empty"
+                });
+
+                return [.. parsingResults];
+            }
+
+            return [];
         }
 
         private static ParsingResult[] ValidateSignedHeaderFields(ValidateRequest validateRequest)
