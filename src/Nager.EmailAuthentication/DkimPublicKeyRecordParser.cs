@@ -24,14 +24,14 @@ namespace Nager.EmailAuthentication
         }
 
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimPublicKeyRecordRaw"></param>
         /// <param name="dkimPublicKeyRecord"></param>
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecordRaw,
-            [NotNullWhen(true)] out DkimPublicKeyRecord? dkimPublicKeyRecord)
+            [NotNullWhen(true)] out DkimPublicKeyRecordBase? dkimPublicKeyRecord)
         {
             if (!ValidateRaw(dkimPublicKeyRecordRaw))
             {
@@ -45,11 +45,21 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dkimPublicKeyRecord);
+            if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dkimPublicKeyRecordV1))
+                {
+                    dkimPublicKeyRecord = dkimPublicKeyRecordV1;
+                    return true;
+                }
+            }
+
+            dkimPublicKeyRecord = null;
+            return false;
         }
 
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimPublicKeyRecordRaw"></param>
         /// <param name="dkimPublicKeyRecord"></param>
@@ -57,7 +67,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecordRaw,
-            [NotNullWhen(true)] out DkimPublicKeyRecord? dkimPublicKeyRecord,
+            [NotNullWhen(true)] out DkimPublicKeyRecordBase? dkimPublicKeyRecord,
             out ParsingResult[]? parsingResults)
         {
             if (!DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out parsingResults))
@@ -72,18 +82,28 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dkimPublicKeyRecord);
+            if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                {
+                    dkimPublicKeyRecord = dmarcRecordV1;
+                    return true;
+                }
+            }
+
+            dkimPublicKeyRecord = null;
+            return false;
         }
 
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimPublicKeyRecordDataFragment"></param>
         /// <param name="dkimPublicKeyRecord"></param>
         /// <returns></returns>
-        public static bool TryParse(
-            DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment,
-            [NotNullWhen(true)] out DkimPublicKeyRecord? dkimPublicKeyRecord)
+        public static bool TryParseV1(
+            DkimPublicKeyRecordDataFragmentV1? dkimPublicKeyRecordDataFragment,
+            [NotNullWhen(true)] out DkimPublicKeyRecordV1? dkimPublicKeyRecord)
         {
             dkimPublicKeyRecord = null;
 
@@ -92,7 +112,7 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            dkimPublicKeyRecord = new DkimPublicKeyRecord
+            dkimPublicKeyRecord = new DkimPublicKeyRecordV1
             {
                 Version = dkimPublicKeyRecordDataFragment.Version ?? "DKIM1",
                 KeyType = dkimPublicKeyRecordDataFragment.KeyType ?? "rsa",

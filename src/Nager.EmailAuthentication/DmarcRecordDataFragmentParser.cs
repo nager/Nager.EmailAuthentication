@@ -10,20 +10,20 @@ namespace Nager.EmailAuthentication
     public static class DmarcRecordDataFragmentParser
     {
         /// <summary>
-        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragment"/> object.
+        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragmentV1"/> object.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecordDataFragment? dmarcDataFragment)
+            [NotNullWhen(true)] out DmarcRecordDataFragmentBase? dmarcDataFragment)
         {
             return TryParse(dmarcRaw, out dmarcDataFragment, out _);
         }
 
         /// <summary>
-        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragment"/> object.
+        /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragmentV1"/> object.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
@@ -31,7 +31,7 @@ namespace Nager.EmailAuthentication
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecordDataFragment? dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecordDataFragmentBase? dmarcDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dmarcRaw))
@@ -42,80 +42,80 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var handlers = new Dictionary<string, MappingHandler<DmarcRecordDataFragment>>
+            var handlers = new Dictionary<string, MappingHandler<DmarcRecordDataFragmentV1>>
             {
                 {
-                    "v", new MappingHandler<DmarcRecordDataFragment>
+                    "v", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.Version = value,
                         Validate = ValidateVersion
                     }
                 },
                 {
-                    "p", new MappingHandler<DmarcRecordDataFragment>
+                    "p", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.DomainPolicy = value,
                         Validate = ValidateDomainPolicy
                     }
                 },
                 {
-                    "sp", new MappingHandler<DmarcRecordDataFragment>
+                    "sp", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.SubdomainPolicy = value,
                         Validate = ValidateDomainPolicy
                     }
                 },
                 {
-                    "rua", new MappingHandler<DmarcRecordDataFragment>
+                    "rua", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.AggregateReportUri = value,
                         Validate = ValidateAddresses
                     }
                 },
                 {
-                    "ruf", new MappingHandler<DmarcRecordDataFragment>
+                    "ruf", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.ForensicReportUri = value,
                         Validate = ValidateAddresses
                     }
                 },
                 {
-                    "rf", new MappingHandler<DmarcRecordDataFragment>
+                    "rf", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportFormat = value,
                         Validate = ValidateReportFormat
                     }
                 },
                 {
-                    "fo", new MappingHandler<DmarcRecordDataFragment>
+                    "fo", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.FailureReportingOptions = value,
                         Validate = ValidateFailureReportingOptions
                     }
                 },
                 {
-                    "pct", new MappingHandler<DmarcRecordDataFragment>
+                    "pct", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.PolicyPercentage = value,
                         Validate = ValidatePolicyPercentage
                     }
                 },
                 {
-                    "ri", new MappingHandler<DmarcRecordDataFragment>
+                    "ri", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportingInterval = value,
                         Validate = ValidateReportingInterval
                     }
                 },
                 {
-                    "adkim", new MappingHandler<DmarcRecordDataFragment>
+                    "adkim", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.DkimAlignmentMode = value,
                         Validate = ValidateAlignmentMode
                     }
                 },
                 {
-                    "aspf", new MappingHandler<DmarcRecordDataFragment>
+                    "aspf", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.SpfAlignmentMode = value,
                         Validate = ValidateAlignmentMode
@@ -123,8 +123,15 @@ namespace Nager.EmailAuthentication
                 }
             };
 
-            var parserBase = new KeyValueParserBase<DmarcRecordDataFragment>(handlers);
-            return parserBase.TryParse(dmarcRaw, out dmarcDataFragment, out parsingResults);
+            var parserBase = new KeyValueParserBase<DmarcRecordDataFragmentV1>(handlers);
+            if (parserBase.TryParse(dmarcRaw, out var dmarcDataFragmentV1, out parsingResults))
+            {
+                dmarcDataFragment = dmarcDataFragmentV1!;
+                return true;
+            }
+
+            dmarcDataFragment = null;
+            return false;
         }
 
         private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)

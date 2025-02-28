@@ -11,20 +11,20 @@ namespace Nager.EmailAuthentication
     public static class DkimPublicKeyRecordDataFragmentParser
     {
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimPublicKeyRecord"></param>
         /// <param name="dkimPublicKeyRecordDataFragment"></param>
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecord,
-            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment)
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentBase? dkimPublicKeyRecordDataFragment)
         {
             return TryParse(dkimPublicKeyRecord, out dkimPublicKeyRecordDataFragment, out _);
         }
 
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimPublicKeyRecord"></param>
         /// <param name="dkimPublicKeyRecordDataFragment"></param>
@@ -32,7 +32,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecord,
-            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragment? dkimPublicKeyRecordDataFragment,
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentBase? dkimPublicKeyRecordDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dkimPublicKeyRecord))
@@ -43,43 +43,43 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var handlers = new Dictionary<string, MappingHandler<DkimPublicKeyRecordDataFragment>>
+            var handlers = new Dictionary<string, MappingHandler<DkimPublicKeyRecordDataFragmentV1>>
             {
                 {
-                    "p", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "p", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.PublicKeyData = value,
                         Validate = ValidatePublicKeyData
                     }
                 },
                 {
-                    "v", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "v", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.Version = value,
                         Validate = ValidateVersion
                     }
                 },
                 {
-                    "k", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "k", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.KeyType = value,
                         Validate = ValidateKeyType
                     }
                 },
                 {
-                    "n", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "n", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.Notes = value
                     }
                 },
                 {
-                    "t", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "t", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.Flags = value
                     }
                 },
                 {
-                    "g", new MappingHandler<DkimPublicKeyRecordDataFragment>
+                    "g", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.Granularity = value,
                         Validate = ValidateGranularity
@@ -87,8 +87,15 @@ namespace Nager.EmailAuthentication
                 }
             };
 
-            var parserBase = new KeyValueParserBase<DkimPublicKeyRecordDataFragment>(handlers);
-            return parserBase.TryParse(dkimPublicKeyRecord, out dkimPublicKeyRecordDataFragment, out parsingResults);
+            var parserBase = new KeyValueParserBase<DkimPublicKeyRecordDataFragmentV1>(handlers);
+            if (parserBase.TryParse(dkimPublicKeyRecord, out var dkimPublicKeyRecordDataFragmentV1, out parsingResults))
+            {
+                dkimPublicKeyRecordDataFragment = dkimPublicKeyRecordDataFragmentV1!;
+                return true;
+            }
+
+            dkimPublicKeyRecordDataFragment = null;
+            return false;
         }
 
         private static ParsingResult[] ValidatePublicKeyData(ValidateRequest validateRequest)

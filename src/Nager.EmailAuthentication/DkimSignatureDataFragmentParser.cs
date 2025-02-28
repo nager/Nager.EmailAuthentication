@@ -11,7 +11,7 @@ namespace Nager.EmailAuthentication
     public static class DkimSignatureDataFragmentParser
     {
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimSignature"></param>
         /// <param name="dkimSignatureDataFragment"></param>
@@ -24,7 +24,7 @@ namespace Nager.EmailAuthentication
         }
 
         /// <summary>
-        /// TryParse
+        /// Try Parse
         /// </summary>
         /// <param name="dkimSignature"></param>
         /// <param name="dkimSignatureDataFragment"></param>

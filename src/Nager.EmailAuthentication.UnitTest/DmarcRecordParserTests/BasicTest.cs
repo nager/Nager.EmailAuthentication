@@ -29,7 +29,7 @@
             var isSuccessful = DmarcRecordDataFragmentParser.TryParse("verification=123456789", out var dmarcDataFragment, out var parsingResults);
 
             Assert.IsFalse(isSuccessful);
-            Assert.IsNotNull(dmarcDataFragment);
+            Assert.IsNull(dmarcDataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
             Assert.IsTrue(parsingResults.Length == 1);
         }

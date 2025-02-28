@@ -1,15 +1,10 @@
 ﻿namespace Nager.EmailAuthentication.Models
 {
     /// <summary>
-    /// Dmarc Record
+    /// Dmarc Record V1
     /// </summary>
-    public class DmarcRecord
+    public class DmarcRecordV1 : DmarcRecordBase
     {
-        /// <summary>
-        /// Gets or sets the DMARC version (e.g., "DMARC1").
-        /// </summary>
-        public required string Version { get; set; }
-
         /// <summary>
         /// Gets or sets the policy for the domain.
         /// </summary>

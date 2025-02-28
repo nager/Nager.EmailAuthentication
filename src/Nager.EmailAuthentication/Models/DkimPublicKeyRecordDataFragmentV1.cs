@@ -3,13 +3,8 @@
     /// <summary>
     /// Dkim Public Key Record Data Fragment
     /// </summary>
-    public class DkimPublicKeyRecordDataFragment
+    public class DkimPublicKeyRecordDataFragmentV1 : DkimPublicKeyRecordDataFragmentBase
     {
-        /// <summary>
-        /// Dkim Version <strong>(v=)</strong>
-        /// </summary>
-        public string? Version { get; set; }
-
         /// <summary>
         /// Key Type <strong>(k=)</strong>
         /// </summary>

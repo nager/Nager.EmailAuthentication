@@ -24,11 +24,11 @@ namespace Nager.EmailAuthentication
         }
 
         /// <summary>
-        /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecord"/> object.
+        /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecordBase"/> object.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC record string to be parsed.</param>
         /// <param name="dmarcRecord">
-        /// When this method returns, contains the parsed <see cref="DmarcRecord"/> if the parsing succeeded; 
+        /// When this method returns, contains the parsed <see cref="DmarcRecordBase"/> if the parsing succeeded; 
         /// otherwise, <c>null</c>.
         /// </param>
         /// <returns>
@@ -37,7 +37,7 @@ namespace Nager.EmailAuthentication
         /// </returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecord? dmarcRecord)
+            [NotNullWhen(true)] out DmarcRecordBase? dmarcRecord)
         {
             if (!ValidateRaw(dmarcRaw))
             {
@@ -51,16 +51,26 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dmarcRecord);
+            if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                {
+                    dmarcRecord = dmarcRecordV1;
+                    return true;
+                }
+            }
+
+            dmarcRecord = null;
+            return false;
         }
 
         /// <summary>
-        /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecord"/> object while also 
+        /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecordBase"/> object while also 
         /// returning additional parsing details.
         /// </summary>
         /// <param name="dmarcRaw">The raw DMARC record string to be parsed.</param>
         /// <param name="dmarcRecord">
-        /// When this method returns, contains the parsed <see cref="DmarcRecord"/> if the parsing succeeded; 
+        /// When this method returns, contains the parsed <see cref="DmarcRecordBase"/> if the parsing succeeded; 
         /// otherwise, <c>null</c>.
         /// </param>
         /// <param name="parsingResults">
@@ -73,7 +83,7 @@ namespace Nager.EmailAuthentication
         /// </returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecord? dmarcRecord,
+            [NotNullWhen(true)] out DmarcRecordBase? dmarcRecord,
             out ParsingResult[]? parsingResults)
         {
             if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
@@ -88,26 +98,36 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            return TryParse(dataFragment, out dmarcRecord);
+            if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
+            {
+                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                {
+                    dmarcRecord = dmarcRecordV1;
+                    return true;
+                }
+            }
+
+            dmarcRecord = null;
+            return false;
         }
 
         /// <summary>
-        /// Attempts to convert a <see cref="DmarcRecordDataFragment"/> into a fully validated 
-        /// <see cref="DmarcRecord"/> by parsing and validating all required DMARC fields.
+        /// Attempts to convert a <see cref="DmarcRecordDataFragmentV1"/> into a fully validated 
+        /// <see cref="DmarcRecordV1"/> by parsing and validating all required DMARC fields.
         /// </summary>
         /// <param name="dmarcDataFragment">
-        /// The <see cref="DmarcRecordDataFragment"/> containing individual DMARC parameter strings to be parsed.
+        /// The <see cref="DmarcRecordDataFragmentV1"/> containing individual DMARC parameter strings to be parsed.
         /// </param>
         /// <param name="dmarcRecord">
-        /// When this method returns, contains the parsed and validated <see cref="DmarcRecord"/> if successful; 
+        /// When this method returns, contains the parsed and validated <see cref="DmarcRecordV1"/> if successful; 
         /// otherwise, <c>null</c>.
         /// </param>
         /// <returns>
         /// <c>true</c> if the conversion and validation were successful; otherwise, <c>false</c>.
         /// </returns>
-        public static bool TryParse(
-            DmarcRecordDataFragment dmarcDataFragment,
-            [NotNullWhen(true)] out DmarcRecord? dmarcRecord)
+        public static bool TryParseV1(
+            DmarcRecordDataFragmentV1 dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecordV1? dmarcRecord)
         {
             dmarcRecord = null;
 
@@ -121,7 +141,7 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            var tempDmarcRecord = new DmarcRecord()
+            var tempDmarcRecord = new DmarcRecordV1()
             {
                 Version = dmarcDataFragment.Version
             };

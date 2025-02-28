@@ -1,4 +1,6 @@
-﻿namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
+﻿using Nager.EmailAuthentication.Models;
+
+namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
     [TestClass]
     public sealed class FailureReportingOptionsTest
@@ -12,14 +14,23 @@
         [DataTestMethod]
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord(string failureReportingOptions)
         {
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
+            var recordRaw = $"v=DMARC1; p=reject; fo={failureReportingOptions}";
+
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dmarcDataFragment);
-            Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
-            Assert.AreEqual(failureReportingOptions, dmarcDataFragment.FailureReportingOptions);
+            Assert.IsNotNull(dataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
             Assert.IsTrue(parsingResults.Length == 1);
+
+            if (dataFragment is not DmarcRecordDataFragmentV1 dataFragmentV1)
+            {
+                Assert.Fail("Wrong DmarcRecordDataFragmentV1 class");
+                return;
+            }
+
+            Assert.AreEqual("reject", dataFragmentV1.DomainPolicy);
+            Assert.AreEqual(failureReportingOptions, dataFragmentV1.FailureReportingOptions);
         }
 
         [DataRow("a", 2)]
@@ -31,14 +42,23 @@
         [DataTestMethod]
         public void TryParse_InvalidDmarcString1_ReturnsTrueAndPopulatesDmarcRecordWithParseErrors(string failureReportingOptions, int parsingResultsCount)
         {
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse($"v=DMARC1; p=reject; fo={failureReportingOptions}", out var dmarcDataFragment, out var parsingResults);
+            var recordRaw = $"v=DMARC1; p=reject; fo={failureReportingOptions}";
+
+            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dmarcDataFragment);
-            Assert.AreEqual("reject", dmarcDataFragment.DomainPolicy);
-            Assert.AreEqual(failureReportingOptions, dmarcDataFragment.FailureReportingOptions);
+            Assert.IsNotNull(dataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
             Assert.IsTrue(parsingResults.Length == parsingResultsCount);
+
+            if (dataFragment is not DmarcRecordDataFragmentV1 dataFragmentV1)
+            {
+                Assert.Fail("Wrong DmarcRecordDataFragmentV1 class");
+                return;
+            }
+
+            Assert.AreEqual("reject", dataFragmentV1.DomainPolicy);
+            Assert.AreEqual(failureReportingOptions, dataFragmentV1.FailureReportingOptions);
         }
     }
 }
