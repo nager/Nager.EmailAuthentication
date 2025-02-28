@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
@@ -39,18 +40,15 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            if (!DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out _))
+            if (DkimPublicKeyRecordDataFragmentParserV1.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out _))
             {
-                dkimPublicKeyRecord = null;
-                return false;
-            }
-
-            if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
-            {
-                if (TryParseV1(dataFragmentV1, out var dkimPublicKeyRecordV1))
+                if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
                 {
-                    dkimPublicKeyRecord = dkimPublicKeyRecordV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dkimPublicKeyRecordV1))
+                    {
+                        dkimPublicKeyRecord = dkimPublicKeyRecordV1;
+                        return true;
+                    }
                 }
             }
 
@@ -70,24 +68,22 @@ namespace Nager.EmailAuthentication
             [NotNullWhen(true)] out DkimPublicKeyRecordBase? dkimPublicKeyRecord,
             out ParsingResult[]? parsingResults)
         {
-            if (!DkimPublicKeyRecordDataFragmentParser.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out parsingResults))
-            {
-                dkimPublicKeyRecord = null;
-                return false;
-            }
-
             if (!ValidateRaw(dkimPublicKeyRecordRaw))
             {
                 dkimPublicKeyRecord = null;
+                parsingResults = null;
                 return false;
             }
 
-            if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
+            if (DkimPublicKeyRecordDataFragmentParserV1.TryParse(dkimPublicKeyRecordRaw, out var dataFragment, out parsingResults))
             {
-                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                if (dataFragment is DkimPublicKeyRecordDataFragmentV1 dataFragmentV1)
                 {
-                    dkimPublicKeyRecord = dmarcRecordV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                    {
+                        dkimPublicKeyRecord = dmarcRecordV1;
+                        return true;
+                    }
                 }
             }
 

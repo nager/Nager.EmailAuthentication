@@ -3,12 +3,12 @@ using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.RegexProviders;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Nager.EmailAuthentication
+namespace Nager.EmailAuthentication.FragmentParsers
 {
     /// <summary>
     /// Dkim Signature Data Fragment Parser
     /// </summary>
-    public static class DkimSignatureDataFragmentParser
+    public static class DkimSignatureDataFragmentParserV1
     {
         /// <summary>
         /// Try Parse
@@ -18,7 +18,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimSignature,
-            [NotNullWhen(true)] out DkimSignatureDataFragmentBase? dkimSignatureDataFragment)
+            [NotNullWhen(true)] out DkimSignatureDataFragmentV1? dkimSignatureDataFragment)
         {
             return TryParse(dkimSignature, out dkimSignatureDataFragment, out _);
         }
@@ -32,7 +32,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimSignature,
-            [NotNullWhen(true)] out DkimSignatureDataFragmentBase? dkimSignatureDataFragment,
+            [NotNullWhen(true)] out DkimSignatureDataFragmentV1? dkimSignatureDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dkimSignature))
@@ -134,14 +134,7 @@ namespace Nager.EmailAuthentication
             };
 
             var parserBase = new KeyValueParserBase<DkimSignatureDataFragmentV1>(handlers);
-            if (parserBase.TryParse(dkimSignature, out var dkimSignatureDataFragmentV1, out parsingResults))
-            {
-                dkimSignatureDataFragment = dkimSignatureDataFragmentV1!;
-                return true;
-            }
-
-            dkimSignatureDataFragment = null;
-            return false;
+            return parserBase.TryParse(dkimSignature, out dkimSignatureDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidatePositiveNumber(
@@ -408,7 +401,7 @@ namespace Nager.EmailAuthentication
 
             //TODO: check that headers are signed at most twice (only oversigning)
             //https://security.stackexchange.com/questions/265408/how-many-times-need-e-mail-headers-be-signed-with-dkim-to-mitigate-dkim-header-i#:~:text=If%20the%20e%2Dmail%20uses,field%20of%20the%20DKIM%20signature.
-            var groupedHeaders = parts.GroupBy(o => o).Select(g => new { Key = g.Key, Count = g.Count() });
+            var groupedHeaders = parts.GroupBy(o => o).Select(g => new { g.Key, Count = g.Count() });
             foreach (var groupedHeader in groupedHeaders)
             {
                 if (groupedHeader.Count == 2)

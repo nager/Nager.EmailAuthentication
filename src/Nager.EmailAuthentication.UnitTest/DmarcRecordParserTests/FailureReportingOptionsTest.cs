@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
@@ -16,7 +17,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = $"v=DMARC1; p=reject; fo={failureReportingOptions}";
 
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -44,7 +45,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = $"v=DMARC1; p=reject; fo={failureReportingOptions}";
 
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);

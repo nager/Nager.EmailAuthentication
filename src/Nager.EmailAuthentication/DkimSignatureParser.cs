@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
@@ -18,18 +19,15 @@ namespace Nager.EmailAuthentication
             string? dkimSignatureRaw,
             [NotNullWhen(true)] out DkimSignatureBase? dkimSignature)
         {
-            if (!DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dataFragment, out _))
+            if (DkimSignatureDataFragmentParserV1.TryParse(dkimSignatureRaw, out var dataFragment, out _))
             {
-                dkimSignature = null;
-                return false;
-            }
-
-            if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
-            {
-                if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
                 {
-                    dkimSignature = dkimSignatureV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                    {
+                        dkimSignature = dkimSignatureV1;
+                        return true;
+                    }
                 }
             }
 
@@ -49,18 +47,15 @@ namespace Nager.EmailAuthentication
             [NotNullWhen(true)] out DkimSignatureBase? dkimSignature,
             out ParsingResult[]? parsingResults)
         {
-            if (!DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dataFragment, out parsingResults))
+            if (DkimSignatureDataFragmentParserV1.TryParse(dkimSignatureRaw, out var dataFragment, out parsingResults))
             {
-                dkimSignature = null;
-                return false;
-            }
-
-            if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
-            {
-                if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                if (dataFragment is DkimSignatureDataFragmentV1 dataFragmentV1)
                 {
-                    dkimSignature = dkimSignatureV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dkimSignatureV1))
+                    {
+                        dkimSignature = dkimSignatureV1;
+                        return true;
+                    }
                 }
             }
 

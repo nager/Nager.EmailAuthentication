@@ -99,7 +99,7 @@ namespace Nager.EmailAuthentication
             }
 
             parsingResults = tempParsingResults.Count == 0 ? null : [.. tempParsingResults];
-            dataFragment = tempDataFragment;
+            dataFragment = mappingFound ? tempDataFragment : null;
 
             return mappingFound;
         }

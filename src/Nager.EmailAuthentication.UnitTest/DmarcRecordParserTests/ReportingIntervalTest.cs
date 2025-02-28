@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
@@ -9,7 +10,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         public void TryParse_ValidDmarcString1_ReturnsTrueAndPopulatesDmarcRecord()
         {
             var dmarcRaw = "v=DMARC1; p=reject; ri=86400;";
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -30,7 +31,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         public void TryParse_InvalidDmarcString1_ReturnsTrueWithErrors()
         {
             var dmarcRaw = "v=DMARC1; p=reject; ri=1000;";
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -52,7 +53,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         public void TryParse_InvalidDmarcString2_ReturnsTrueWithErrors()
         {
             var dmarcRaw = "v=DMARC1; p=reject; ri=1000000;";
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -74,7 +75,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         public void TryParse_InvalidDmarcString3_ReturnsTrueWithErrors()
         {
             var dmarcRaw = "v=DMARC1; p=reject; ri=-1000000;";
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);

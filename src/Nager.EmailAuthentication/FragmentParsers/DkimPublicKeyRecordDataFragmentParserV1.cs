@@ -3,12 +3,12 @@ using Nager.EmailAuthentication.Models;
 using System.Buffers.Text;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Nager.EmailAuthentication
+namespace Nager.EmailAuthentication.FragmentParsers
 {
     /// <summary>
     /// Dkim Public Key Record Data Fragment Parser
     /// </summary>
-    public static class DkimPublicKeyRecordDataFragmentParser
+    public static class DkimPublicKeyRecordDataFragmentParserV1
     {
         /// <summary>
         /// Try Parse
@@ -18,7 +18,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecord,
-            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentBase? dkimPublicKeyRecordDataFragment)
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentV1? dkimPublicKeyRecordDataFragment)
         {
             return TryParse(dkimPublicKeyRecord, out dkimPublicKeyRecordDataFragment, out _);
         }
@@ -32,7 +32,7 @@ namespace Nager.EmailAuthentication
         /// <returns></returns>
         public static bool TryParse(
             string? dkimPublicKeyRecord,
-            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentBase? dkimPublicKeyRecordDataFragment,
+            [NotNullWhen(true)] out DkimPublicKeyRecordDataFragmentV1? dkimPublicKeyRecordDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dkimPublicKeyRecord))
@@ -88,14 +88,7 @@ namespace Nager.EmailAuthentication
             };
 
             var parserBase = new KeyValueParserBase<DkimPublicKeyRecordDataFragmentV1>(handlers);
-            if (parserBase.TryParse(dkimPublicKeyRecord, out var dkimPublicKeyRecordDataFragmentV1, out parsingResults))
-            {
-                dkimPublicKeyRecordDataFragment = dkimPublicKeyRecordDataFragmentV1!;
-                return true;
-            }
-
-            dkimPublicKeyRecordDataFragment = null;
-            return false;
+            return parserBase.TryParse(dkimPublicKeyRecord, out dkimPublicKeyRecordDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidatePublicKeyData(ValidateRequest validateRequest)

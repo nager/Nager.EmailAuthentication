@@ -2,12 +2,12 @@
 using Nager.EmailAuthentication.Models;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Nager.EmailAuthentication
+namespace Nager.EmailAuthentication.FragmentParsers
 {
     /// <summary>
     /// Dmarc Record Data Fragment Parser
     /// </summary>
-    public static class DmarcRecordDataFragmentParser
+    public static class DmarcRecordDataFragmentParserV1
     {
         /// <summary>
         /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragmentV1"/> object.
@@ -17,7 +17,7 @@ namespace Nager.EmailAuthentication
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecordDataFragmentBase? dmarcDataFragment)
+            [NotNullWhen(true)] out DmarcRecordDataFragmentV1? dmarcDataFragment)
         {
             return TryParse(dmarcRaw, out dmarcDataFragment, out _);
         }
@@ -31,7 +31,7 @@ namespace Nager.EmailAuthentication
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
             string? dmarcRaw,
-            [NotNullWhen(true)] out DmarcRecordDataFragmentBase? dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecordDataFragmentV1? dmarcDataFragment,
             out ParsingResult[]? parsingResults)
         {
             if (string.IsNullOrWhiteSpace(dmarcRaw))
@@ -124,14 +124,7 @@ namespace Nager.EmailAuthentication
             };
 
             var parserBase = new KeyValueParserBase<DmarcRecordDataFragmentV1>(handlers);
-            if (parserBase.TryParse(dmarcRaw, out var dmarcDataFragmentV1, out parsingResults))
-            {
-                dmarcDataFragment = dmarcDataFragmentV1!;
-                return true;
-            }
-
-            dmarcDataFragment = null;
-            return false;
+            return parserBase.TryParse(dmarcRaw, out dmarcDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)
@@ -146,7 +139,7 @@ namespace Nager.EmailAuthentication
                     Field = validateRequest.Field,
                     Message = "DMARC record is invalid: it must start with 'v=DMARC1'."
                 });
-                
+
                 return [.. parsingResults];
             }
 

@@ -1,4 +1,6 @@
-﻿namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
+﻿using Nager.EmailAuthentication.FragmentParsers;
+
+namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 {
     [TestClass]
     public sealed class SignatureAlgorithmTest
@@ -10,7 +12,7 @@
         {
             var dkimSignature = $"v=1; a={signatureAlgorithm}; d=domain.com; s=test; h=from:to:reply-to:subject:date:cc:content-type; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignatureDataFragment);
@@ -23,7 +25,7 @@
         {
             var dkimSignature = $"v=1; a={signatureAlgorithm}; d=domain.com; s=test; h=from:to:reply-to:subject:date:cc:content-type; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignatureDataFragment);
@@ -36,7 +38,7 @@
         {
             var dkimSignature = $"v=1; a={signatureAlgorithm}; d=domain.com; s=test; h=from:to:reply-to:subject:date:cc:content-type; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignatureDataFragment);

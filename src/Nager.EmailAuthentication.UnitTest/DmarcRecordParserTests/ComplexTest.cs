@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
 {
@@ -10,7 +11,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=100; adkim=s; aspf=s";
 
-            var isSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -34,7 +35,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com!10m, mailto:dmarc@example.com; pct=100; adkim=s; aspf=s";
 
-            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isDataFragmentParserSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -69,7 +70,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=50; adkim=r; aspf=r";
 
-            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isDataFragmentParserSuccessful);
             Assert.IsNotNull(dataFragment);
@@ -105,7 +106,7 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
         {
             var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=50; adkim=t; aspf=t";
 
-            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParser.TryParse(recordRaw, out var dataFragment, out var parsingResults);
+            var isDataFragmentParserSuccessful = DmarcRecordDataFragmentParserV1.TryParse(recordRaw, out var dataFragment, out var parsingResults);
 
             Assert.IsTrue(isDataFragmentParserSuccessful);
             Assert.IsNotNull(dataFragment);

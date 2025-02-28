@@ -1,4 +1,5 @@
-﻿using Nager.EmailAuthentication.Models;
+﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication
@@ -45,18 +46,15 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out _))
+            if (DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out _))
             {
-                dmarcRecord = null;
-                return false;
-            }
-
-            if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
-            {
-                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
                 {
-                    dmarcRecord = dmarcRecordV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                    {
+                        dmarcRecord = dmarcRecordV1;
+                        return true;
+                    }
                 }
             }
 
@@ -86,24 +84,22 @@ namespace Nager.EmailAuthentication
             [NotNullWhen(true)] out DmarcRecordBase? dmarcRecord,
             out ParsingResult[]? parsingResults)
         {
-            if (!DmarcRecordDataFragmentParser.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
-            {
-                dmarcRecord = null;
-                return false;
-            }
-
             if (!ValidateRaw(dmarcRaw))
             {
                 dmarcRecord = null;
+                parsingResults = null;
                 return false;
             }
 
-            if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
+            if (DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
             {
-                if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
                 {
-                    dmarcRecord = dmarcRecordV1;
-                    return true;
+                    if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
+                    {
+                        dmarcRecord = dmarcRecordV1;
+                        return true;
+                    }
                 }
             }
 

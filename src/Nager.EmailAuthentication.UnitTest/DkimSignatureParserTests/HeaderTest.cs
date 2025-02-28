@@ -1,4 +1,6 @@
-﻿namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
+﻿using Nager.EmailAuthentication.FragmentParsers;
+
+namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
 {
     [TestClass]
     public sealed class HeaderTest
@@ -8,7 +10,7 @@
         {
             var dkimSignatureRaw = "v=1; a=rsa-sha256; d=domain.com; s=test; h=; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dkimSignatureDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignatureRaw, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignatureDataFragment);
@@ -20,7 +22,7 @@
         {
             var dkimSignatureRaw = "v=1; a=rsa-sha256; d=domain.com; s=test; h=test; bh=testbodyhash=; b=signaturedata";
 
-            var isSuccessful = DkimSignatureDataFragmentParser.TryParse(dkimSignatureRaw, out var dkimSignatureDataFragment, out var parsingResults);
+            var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignatureRaw, out var dkimSignatureDataFragment, out var parsingResults);
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimSignatureDataFragment);
