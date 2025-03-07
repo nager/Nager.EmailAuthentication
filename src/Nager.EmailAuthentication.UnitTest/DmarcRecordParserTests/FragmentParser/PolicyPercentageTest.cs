@@ -1,7 +1,7 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 using Nager.EmailAuthentication.Models;
 
-namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
+namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentParser
 {
     [TestClass]
     public sealed class PolicyPercentageTest

@@ -1,7 +1,7 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 using Nager.EmailAuthentication.Models;
 
-namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
+namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentParser
 {
     [TestClass]
     public sealed class ComplexTest
@@ -52,17 +52,6 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
             Assert.AreEqual("100", dataFragmentV1.PolicyPercentage);
             Assert.AreEqual("s", dataFragmentV1.DkimAlignmentMode);
             Assert.AreEqual("s", dataFragmentV1.SpfAlignmentMode);
-
-            var isParserSuccessful = DmarcRecordParser.TryParseV1(dataFragmentV1, out var dmarcRecord);
-
-            Assert.IsTrue(isParserSuccessful);
-            Assert.IsNotNull(dmarcRecord);
-
-            Assert.AreEqual(DmarcPolicy.Reject, dmarcRecord.DomainPolicy);
-            Assert.AreEqual(DmarcPolicy.Reject, dmarcRecord.SubdomainPolicy);
-            Assert.AreEqual(AlignmentMode.Strict, dmarcRecord.DkimAlignmentMode);
-            Assert.AreEqual(AlignmentMode.Strict, dmarcRecord.SpfAlignmentMode);
-            Assert.AreEqual(100, dmarcRecord.PolicyPercentage);
         }
 
         [TestMethod]
@@ -87,18 +76,6 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
             Assert.AreEqual("50", dataFragmentV1.PolicyPercentage);
             Assert.AreEqual("r", dataFragmentV1.DkimAlignmentMode);
             Assert.AreEqual("r", dataFragmentV1.SpfAlignmentMode);
-
-
-            var isParserSuccessful = DmarcRecordParser.TryParseV1(dataFragmentV1, out var dmarcRecord);
-
-            Assert.IsTrue(isParserSuccessful);
-            Assert.IsNotNull(dmarcRecord);
-
-            Assert.AreEqual(DmarcPolicy.Reject, dmarcRecord.DomainPolicy);
-            Assert.AreEqual(DmarcPolicy.Reject, dmarcRecord.SubdomainPolicy);
-            Assert.AreEqual(AlignmentMode.Relaxed, dmarcRecord.DkimAlignmentMode);
-            Assert.AreEqual(AlignmentMode.Relaxed, dmarcRecord.SpfAlignmentMode);
-            Assert.AreEqual(50, dmarcRecord.PolicyPercentage);
         }
 
         [TestMethod]
@@ -123,11 +100,6 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
             Assert.AreEqual("50", dataFragmentV1.PolicyPercentage);
             Assert.AreEqual("t", dataFragmentV1.DkimAlignmentMode);
             Assert.AreEqual("t", dataFragmentV1.SpfAlignmentMode);
-
-            var isParserSuccessful = DmarcRecordParser.TryParseV1(dataFragmentV1, out var dmarcRecord);
-
-            Assert.IsFalse(isParserSuccessful);
-            Assert.IsNull(dmarcRecord);
         }
     }
 }

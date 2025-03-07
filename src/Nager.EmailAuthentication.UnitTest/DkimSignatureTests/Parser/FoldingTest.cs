@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.Models;
 
-namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
+namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.Parser
 {
     [TestClass]
     public sealed class FoldingTest
@@ -34,7 +34,7 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
             //Assert.AreEqual(["cc"], dkimSignature.SignedHeaderFields);
             Assert.AreEqual(new DateTimeOffset(2023, 8, 3, 3, 22, 14, TimeSpan.Zero), dkimSignatureV1.Timestamp);
             Assert.AreEqual(new DateTimeOffset(2023, 8, 4, 3, 22, 14, TimeSpan.Zero), dkimSignatureV1.SignatureExpiration);
-            
+
 
             //Assert.IsNull(parsingResults, "ParsingResults is not null");
         }

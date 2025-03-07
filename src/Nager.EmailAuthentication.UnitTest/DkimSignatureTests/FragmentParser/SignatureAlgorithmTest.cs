@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 
-namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
+namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.FragmentParser
 {
     [TestClass]
     public sealed class SignatureAlgorithmTest

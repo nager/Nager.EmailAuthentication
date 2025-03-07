@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 
-namespace Nager.EmailAuthentication.UnitTest.DkimPublicKeyRecordParserTests
+namespace Nager.EmailAuthentication.UnitTest.DkimPublicKeyRecordTests.FragmentParser
 {
     [TestClass]
     public sealed class BasicTest
@@ -51,36 +51,6 @@ namespace Nager.EmailAuthentication.UnitTest.DkimPublicKeyRecordParserTests
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dkimPublicKeyRecordDataFragment);
             Assert.IsNotNull(parsingResults, "ParsingResults is null");
-        }
-
-        [TestMethod]
-        public void TryParse_WrongDkimPublicKeyRecord2_ReturnsTrueAndPopulatesDataFragment()
-        {
-            var dkimPublicKeyRecordRaw = "v=DMARC1;p=reject;";
-
-            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
-            Assert.IsFalse(isSuccessful);
-            Assert.IsNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is not null");
-        }
-
-        [TestMethod]
-        public void TryParse_DkimPublicKeyRecordWithVersion_ReturnsTrueAndPopulatesData()
-        {
-            var dkimPublicKeyRecordRaw = "v=DKIM1;p=test;";
-
-            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
-            Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is null");
-        }
-
-        [TestMethod]
-        public void TryParse_DkimPublicKeyRecordWithoutVersion_ReturnsTrueAndPopulatesData()
-        {
-            var dkimPublicKeyRecordRaw = "k=rsa; p=test";
-
-            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
-            Assert.IsTrue(isSuccessful);
-            Assert.IsNotNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is null");
         }
     }
 }

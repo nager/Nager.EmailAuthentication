@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.Models;
 
-namespace Nager.EmailAuthentication.UnitTest.DkimSignatureParserTests
+namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.Parser
 {
     [TestClass]
     public sealed class MessageCanonicalizationTest

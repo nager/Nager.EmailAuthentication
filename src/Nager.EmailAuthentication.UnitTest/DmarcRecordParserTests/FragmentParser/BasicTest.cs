@@ -1,6 +1,6 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 
-namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests
+namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentParser
 {
     [TestClass]
     public sealed class BasicTest
