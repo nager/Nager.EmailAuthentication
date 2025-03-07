@@ -62,5 +62,25 @@ namespace Nager.EmailAuthentication.UnitTest.DkimPublicKeyRecordParserTests
             Assert.IsFalse(isSuccessful);
             Assert.IsNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is not null");
         }
+
+        [TestMethod]
+        public void TryParse_DkimPublicKeyRecordWithVersion_ReturnsTrueAndPopulatesData()
+        {
+            var dkimPublicKeyRecordRaw = "v=DKIM1;p=test;";
+
+            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is null");
+        }
+
+        [TestMethod]
+        public void TryParse_DkimPublicKeyRecordWithoutVersion_ReturnsTrueAndPopulatesData()
+        {
+            var dkimPublicKeyRecordRaw = "k=rsa; p=test";
+
+            var isSuccessful = DkimPublicKeyRecordParser.TryParse(dkimPublicKeyRecordRaw, out var dkimPublicKeyRecord);
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(dkimPublicKeyRecord, "DkimPublicKeyRecord is null");
+        }
     }
 }

@@ -16,11 +16,6 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
-            if (!dkimPublicKeyRecordRaw.StartsWith("v=DKIM1", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
             return true;
         }
 
@@ -104,6 +99,12 @@ namespace Nager.EmailAuthentication
             dkimPublicKeyRecord = null;
 
             if (dkimPublicKeyRecordDataFragment == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(dkimPublicKeyRecordDataFragment.Version) &&
+                !dkimPublicKeyRecordDataFragment.Version.Equals("DKIM1", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
