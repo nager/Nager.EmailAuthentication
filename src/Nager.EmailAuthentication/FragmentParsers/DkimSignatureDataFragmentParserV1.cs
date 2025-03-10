@@ -516,9 +516,8 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
             var parts = validateRequest.Value.Split(':');
 
-            //TODO: check that headers are signed at most twice (only oversigning)
             //https://security.stackexchange.com/questions/265408/how-many-times-need-e-mail-headers-be-signed-with-dkim-to-mitigate-dkim-header-i#:~:text=If%20the%20e%2Dmail%20uses,field%20of%20the%20DKIM%20signature.
-            var groupedHeaders = parts.GroupBy(o => o).Select(g => new { g.Key, Count = g.Count() });
+            var groupedHeaders = parts.GroupBy(o => o).Select(g => new { Key = g.Key.ToLower(), Count = g.Count() });
             foreach (var groupedHeader in groupedHeaders)
             {
                 if (groupedHeader.Count == 2)
@@ -528,6 +527,15 @@ namespace Nager.EmailAuthentication.FragmentParsers
                         Status = ParsingStatus.Info,
                         Field = validateRequest.Field,
                         Message = $"{groupedHeader.Key} oversigning detected"
+                    });
+                }
+                else if (groupedHeader.Count > 2)
+                {
+                    parsingResults.Add(new ParsingResult
+                    {
+                        Status = ParsingStatus.Warning,
+                        Field = validateRequest.Field,
+                        Message = $"{groupedHeader.Key} multiple occurrences of the same header detected"
                     });
                 }
             }
