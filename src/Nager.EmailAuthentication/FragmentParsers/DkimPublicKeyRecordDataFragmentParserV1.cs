@@ -84,7 +84,20 @@ namespace Nager.EmailAuthentication.FragmentParsers
                         Map = (dataFragment, value) => dataFragment.Granularity = value,
                         Validate = ValidateGranularity
                     }
-                }
+                },
+                {
+                    "h", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
+                    {
+                        Map = (dataFragment, value) => dataFragment.AcceptableHashAlgorithms = value
+                    }
+                },
+                {
+                    "s", new MappingHandler<DkimPublicKeyRecordDataFragmentV1>
+                    {
+                        Map = (dataFragment, value) => dataFragment.ServiceType = value,
+                        Validate = ValidateServiceType
+                    }
+                },
             };
 
             var parserBase = new KeyValueParserBase<DkimPublicKeyRecordDataFragmentV1>(handlers);
@@ -180,6 +193,26 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     Status = ParsingStatus.Critical,
                     Field = validateRequest.Field,
                     Message = "The type of the key is invalid"
+                }
+            ];
+        }
+
+        private static ParsingResult[] ValidateServiceType(ValidateRequest validateRequest)
+        {
+            var allowedServiceTypes = new string[] { "*", "email" };
+
+            if (allowedServiceTypes.Contains(validateRequest.Value, StringComparer.CurrentCultureIgnoreCase))
+            {
+                return [];
+            }
+
+            return
+            [
+                new ParsingResult
+                {
+                    Status = ParsingStatus.Critical,
+                    Field = validateRequest.Field,
+                    Message = "The ServiceType is invalid"
                 }
             ];
         }

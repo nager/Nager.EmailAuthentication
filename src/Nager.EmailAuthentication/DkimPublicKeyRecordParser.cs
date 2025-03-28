@@ -116,6 +116,8 @@ namespace Nager.EmailAuthentication
                 PublicKeyData = dkimPublicKeyRecordDataFragment.PublicKeyData ?? string.Empty,
                 Notes = dkimPublicKeyRecordDataFragment.Notes,
                 Flags = dkimPublicKeyRecordDataFragment.Flags,
+                AcceptableHashAlgorithms = dkimPublicKeyRecordDataFragment.AcceptableHashAlgorithms,
+                ServiceType = dkimPublicKeyRecordDataFragment.ServiceType ?? "*"
             };
 
             return true;

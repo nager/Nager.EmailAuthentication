@@ -24,5 +24,15 @@
         /// A set of flags that define boolean attributes <strong>(t=)</strong>
         /// </summary>
         public string? Flags { get; set; }
+
+        /// <summary>
+        /// A colon-separated list of service types to which this record applies <strong>(s=)</strong>
+        /// </summary>
+        public string ServiceType { get; set; } = "*";
+
+        /// <summary>
+        /// Acceptable hash algorithms <strong>(h=)</strong>
+        /// </summary>
+        public string? AcceptableHashAlgorithms { get; set; }
     }
 }
