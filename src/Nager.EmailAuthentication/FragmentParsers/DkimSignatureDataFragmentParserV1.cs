@@ -540,7 +540,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 }
             }
 
-            var recommendedHeaders = new string[] { "from", "to", "subject", "reply-to", "date", "cc", "content-type" };
+            var recommendedHeaders = new string[] { "from", "to", "cc", "subject", "reply-to", "date" };
             var missingRecommendedHeaders = recommendedHeaders.Except(groupedHeaders.Select(o => o.Key));
             foreach (var missingRecommendedHeader in missingRecommendedHeaders)
             {
