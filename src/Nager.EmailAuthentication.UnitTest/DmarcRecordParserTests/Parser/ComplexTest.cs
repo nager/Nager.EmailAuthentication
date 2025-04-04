@@ -1,5 +1,5 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
-using Nager.EmailAuthentication.Models;
+using Nager.EmailAuthentication.Models.Dmarc;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.Parser
 {

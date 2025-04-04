@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dmarc
 {
     /// <summary>
     /// Defines the alignment mode for DMARC (Domain-based Message Authentication, Reporting, and Conformance).

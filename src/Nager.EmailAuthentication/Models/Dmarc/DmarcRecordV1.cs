@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dmarc
 {
     /// <summary>
     /// Dmarc Record V1

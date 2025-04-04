@@ -1,5 +1,6 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
 using Nager.EmailAuthentication.Models;
+using Nager.EmailAuthentication.Models.Dkim;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Nager.EmailAuthentication

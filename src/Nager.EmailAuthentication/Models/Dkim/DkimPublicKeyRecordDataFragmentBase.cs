@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dkim
 {
     /// <summary>
     /// Dkim Public Key Record Data Fragment

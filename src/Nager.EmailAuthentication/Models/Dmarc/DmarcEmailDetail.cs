@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mail;
 
-namespace Nager.EmailAuthentication.Models
+namespace Nager.EmailAuthentication.Models.Dmarc
 {
     /// <summary>
     /// Represents the details of a DMARC email address, including validation status and maximum size.

@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dkim
 {
     /// <summary>
     /// Represents the base class for DKIM signatures, which can be extended by specific versions like <see cref="DkimSignatureV1"/>.

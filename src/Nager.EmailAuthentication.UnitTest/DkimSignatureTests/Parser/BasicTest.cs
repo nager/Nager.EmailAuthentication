@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.Models;
+using Nager.EmailAuthentication.Models.Dkim;
 
 namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.Parser
 {

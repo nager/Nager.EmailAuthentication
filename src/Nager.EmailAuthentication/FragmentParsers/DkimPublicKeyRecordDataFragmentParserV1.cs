@@ -1,5 +1,6 @@
 ﻿using Nager.EmailAuthentication.Handlers;
 using Nager.EmailAuthentication.Models;
+using Nager.EmailAuthentication.Models.Dkim;
 using System.Buffers.Text;
 using System.Diagnostics.CodeAnalysis;
 

@@ -1,4 +1,4 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dmarc
 {
     /// <summary>
     /// Defines the DMARC policy actions that can be applied to emails failing authentication checks.

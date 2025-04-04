@@ -1,61 +1,66 @@
-﻿namespace Nager.EmailAuthentication.Models
+﻿namespace Nager.EmailAuthentication.Models.Dkim
 {
     /// <summary>
-    /// Dkim Signature Data Fragment V1
+    /// Represents the DKIM signature for version 1 (v=1), inheriting from <see cref="DkimSignatureBase"/>
     /// </summary>
-    public class DkimSignatureDataFragmentV1 : DkimSignatureDataFragmentBase
+    public class DkimSignatureV1 : DkimSignatureBase
     {
         /// <summary>
         /// Dkim Signature Algorithm <strong>(a=)</strong>
         /// </summary>
-        public string? SignatureAlgorithm { get; set; }
+        public SignatureAlgorithm SignatureAlgorithm { get; set; }
 
         /// <summary>
         /// Signature data <strong>(b=)</strong>
         /// </summary>
-        public string? SignatureData { get; set; }
+        public required string SignatureData { get; set; }
 
         /// <summary>
         /// Body hash <strong>(bh=)</strong>
         /// </summary>
-        public string? BodyHash { get; set; }
+        public required string BodyHash { get; set; }
 
         /// <summary>
         /// Body length count <strong>(l=)</strong><br/>
         /// This tag informs the Verifier of the number of octets in the body of the email after canonicalization
         /// included in the cryptographic hash, starting from 0 immediately following the CRLF preceding the body.
         /// </summary>
-        public string? BodyLengthCount { get; set; }
+        public int? BodyLengthCount { get; set; }
 
         /// <summary>
-        /// Message canonicalization <strong>(c=)</strong>
+        /// Header Message canonicalization <strong>(c=)</strong>
         /// </summary>
-        public string? MessageCanonicalization { get; set; }
+        public required CanonicalizationType MessageCanonicalizationHeader { get; set; }
 
         /// <summary>
-        /// Signing Domain Identifier SDID <strong>(d=)</strong>
+        /// Body Message canonicalization <strong>(c=)</strong>
         /// </summary>
-        public string? SigningDomainIdentifier { get; set; }
+        public required CanonicalizationType MessageCanonicalizationBody { get; set; }
+
+        /// <summary>
+        /// Signing Domain Identifier <strong>(d=)</strong>
+        /// </summary>
+        public required string SigningDomainIdentifier { get; set; }
 
         /// <summary>
         /// Selector <strong>(s=)</strong>
         /// </summary>
-        public string? Selector { get; set; }
+        public required string Selector { get; set; }
 
         /// <summary>
         /// Signature Timestamp <strong>(t=)</strong>
         /// </summary>
-        public string? Timestamp { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// Signature Expiration <strong>(x=)</strong>
         /// </summary>
-        public string? SignatureExpiration { get; set; }
+        public DateTimeOffset? SignatureExpiration { get; set; }
 
         /// <summary>
         /// Signed header fields <strong>(h=)</strong>
         /// </summary>
-        public string? SignedHeaderFields { get; set; }
+        public string[] SignedHeaderFields { get; set; } = [];
 
         /// <summary>
         /// Query Methods, default is "dns/txt" <strong>(q=)</strong>
