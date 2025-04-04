@@ -1,18 +1,40 @@
 ﻿namespace Nager.EmailAuthentication.Models.Spf.Mechanisms
 {
+    /// <summary>
+    /// Spf Mechanism Base
+    /// </summary>
     public abstract class SpfMechanismBase : SpfTerm
     {
-        protected char Delimiter = ':';
-        
+        internal char Delimiter = ':';
+
+        /// <summary>
+        /// Mechanism Type
+        /// </summary>
         public MechanismType MechanismType { get; init; }
+
+        /// <summary>
+        /// Qualifier
+        /// </summary>
         public SpfQualifier Qualifier { get; private set; }
+
+        /// <summary>
+        /// Mechanism Data
+        /// </summary>
         public string? MechanismData { get; private set; }
 
+        /// <summary>
+        /// Spf Mechanism Base
+        /// </summary>
+        /// <param name="mechanismType"></param>
         public SpfMechanismBase(MechanismType mechanismType)
         {
             this.MechanismType = mechanismType;
         }
 
+        /// <summary>
+        /// Set Qualifier
+        /// </summary>
+        /// <param name="qualifier"></param>
         public void SetQualifier(char qualifier)
         {
             switch (qualifier)
@@ -35,6 +57,10 @@
             }
         }
 
+        /// <summary>
+        /// Extracts the data part from the given SPF term.
+        /// </summary>
+        /// <param name="spfTerm">The SPF term from which the data part will be extracted.</param>
         public void GetDataPart(ReadOnlySpan<char> spfTerm)
         {
             var indexOfColonSign = spfTerm.IndexOf(Delimiter);
@@ -48,6 +74,7 @@
             this.MechanismData = data.ToString();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{this.Qualifier} {this.MechanismType} {this.MechanismData}";
