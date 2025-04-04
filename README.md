@@ -1,12 +1,15 @@
 # Nager.EmailAuthentication
 
-Nager.EmailAuthentication is a .NET library designed to parse and validate DMARC records easily.
+Nager.EmailAuthentication is a .NET library designed to parse and validate DMARC and DKIM easily.
 With built-in support for error handling and validation, this library simplifies working with email authentication configurations.
 
 ## Features
 
 - Parse DMARC records with comprehensive validation.
+- Parse DKIM Public Key records with comprehensive validation.
+- Parse DKIM Signatures with comprehensive validation.
 - Identify and report errors in DMARC configurations.
+- Identify and report errors in DKIM configurations.
 
 ## Installation
 
