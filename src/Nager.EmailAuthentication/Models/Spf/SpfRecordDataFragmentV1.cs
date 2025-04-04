@@ -8,6 +8,6 @@
         /// <summary>
         /// Spf Terms
         /// </summary>
-        public SpfTerm[] SpfTerms { get; set; }
+        public required SpfTerm[] SpfTerms { get; set; }
     }
 }
