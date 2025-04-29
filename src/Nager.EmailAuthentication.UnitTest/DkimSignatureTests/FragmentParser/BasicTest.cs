@@ -1,5 +1,4 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
-using Nager.EmailAuthentication.Models;
 
 namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.FragmentParser
 {
@@ -21,8 +20,8 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.FragmentParser
         [TestMethod]
         public void TryParse_ValidDkimSignatureWithTabs_ReturnsTrueAndPopulatesDataFragment()
         {
-            var dkimSignature = "v=1; a=rsa-sha256; c=relaxed/relaxed; d=\tdomain.com; h=cc:content-type:content-type:date:date\t:feedback-id:feedback-id:from:from:in-reply-to:message-id\t:mime-version:reply-to:subject:subject:to:to:x-me-proxy\t:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1745335784; x=\t1745422184; bh=xaB6q5eOaduj6x70tDxwBNy7rJTejazDBdT+WsewRKw=; b=E\tQ/mLssK64d4QUX83KuBeqAyPHgXI9lMNH3aiemXdgTOJukRuU28gmeuuL0uyp4ca\tIYIObYggaI+Q69W7SbNlIWRLAoWwi+9H1dPQ/7MJndenkHmwWKTlL5m5uPGtksge\t6yvbJYdR2poDiKA5nAowi8La9Jg1AubTV4TkctpPDejBqLKd9sYPY2oP6QcbKna3\teAw16V4n3Pi82+deH7+V38a0wwmZZb7+0omuSM2j1s2wBVg70vGdPY5wINudvtFp\tswSKhMdr8n6vS5omFOWAFvkYFnm3W4PLi9+XPAYznpo4lZg4Zsl0iigAJk1ytcSh\thQtwY3ewvD0gxbjw5p1Kw==";
-            //TODO: Add logic for removing tabs
+            var dkimSignature = "v=1; a=rsa-sha256; c=relaxed/relaxed; d=domain.com;\r\n s=testselector;\r\n h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;\r\n bh=qxq6it6URJf9QDr82aTOS1esfmgKTsALYByECu5Ypjo=;\r\n b=Ps4k/pVqXOLkxP1x8YJL+ofgVAfNYNPGT0ln4pSQ5M7T+KTND8ijzYrPIocjiE40qLmQAnccrxMRS56weM2Jgb4F0cXkWJop1wJnUmKsFpMOYzaIXKUy4XnTaakR592E5t9ejoAgZIfE/jl3fcjKUIhNZuDGCSUYDAd64a1UndacEG+efXBG57bclUNmzuwx2tHXTBdKLecm0fZ0ST2OfAosrE8lwFyprzxSEoOFb8/PiA20MI1b2tMg7tH0pOcbLkdTHiSvkGuQFTvX87zCJk6WxW92bEP35kekPlqiFDKjpC5cVoIuC5UN9cHTsWvJLanaJJI+Ol9GB18dmqmCKw==";
+            //TODO: Add logic for removing tabs and line breaks
 
             var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
@@ -34,8 +33,8 @@ namespace Nager.EmailAuthentication.UnitTest.DkimSignatureTests.FragmentParser
         [TestMethod]
         public void TryParse_ValidDkimSignatureWithSpaces_ReturnsTrueAndPopulatesDataFragment()
         {
-            var dkimSignature = "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=domain.com; s=google; t=1744644510; x=1745249310; darn=audit.mailtower.app;        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject         :date:message-id:reply-to;        bh=w69OA+I6wWRcn0DkZDv7yYmnjGR7+kWh6VX1cEfJdUs=;        b=T2Xje/yAu4r88I7E5E36zHFrbF5Cv5x+Fb15kUxkf//d5cYcl9bX1LTPrj9V5DZskl         ErTozaI7s6BXdo3IoHq6ZX8TvbVTDTuP7d7bkdiW16twzl8OpT3pW04T1HjElz464v37         MwLSS4ZX48pGv2IWv/EVAKQUUfr2OMIs4mC5ZjtCWBTZ2n1BtVBaM6ZBCRUK72t6HfXP         X54HFf5jZo+I4gqZGsd7ZrXF/TISHTt1493IIJNp9J1Q9dVwNlJ2lELr66LBAld0gI8C         aFQ71Bxa5ahcl6w+k9OSiPP0apwY+QC3KYkSnGYoswIoSOgZGJETdNkePd447kiH8MkU         ikMg==";
-            //TODO: Add logic for removing spaces
+            var dkimSignature = "v=1; a=rsa-sha256; c=relaxed/relaxed; d=\r\n\tdomain.com; h=cc:content-type:content-type:date:date\r\n\t:feedback-id:feedback-id:from:from:in-reply-to:message-id\r\n\t:mime-version:reply-to:subject:subject:to:to:x-me-proxy\r\n\t:x-me-sender:x-me-sender:x-sasl-enc; s=testselector; t=1745335784; x=\r\n\t1745422184; bh=xaB6q5eOaduj6x70tDxwBNy7rJTejazDBdT+WsewRKw=; b=E\r\n\tQ/mLssK64d4QUX83KuBeqAyPHgXI9lMNH3aiemXdgTOJukRuU28gmeuuL0uyp4ca\r\n\tIYIObYggaI+Q69W7SbNlIWRLAoWwi+9H1dPQ/7MJndenkHmwWKTlL5m5uPGtksge\r\n\t6yvbJYdR2poDiKA5nAowi8La9Jg1AubTV4TkctpPDejBqLKd9sYPY2oP6QcbKna3\r\n\teAw16V4n3Pi82+deH7+V38a0wwmZZb7+0omuSM2j1s2wBVg70vGdPY5wINudvtFp\r\n\tswSKhMdr8n6vS5omFOWAFvkYFnm3W4PLi9+XPAYznpo4lZg4Zsl0iigAJk1ytcSh\r\n\thQtwY3ewvD0gxbjw5p1Kw==";
+            //TODO: Add logic for removing spaces and line breaks
 
             var isSuccessful = DkimSignatureDataFragmentParserV1.TryParse(dkimSignature, out var dkimSignatureDataFragment, out var parsingResults);
 
