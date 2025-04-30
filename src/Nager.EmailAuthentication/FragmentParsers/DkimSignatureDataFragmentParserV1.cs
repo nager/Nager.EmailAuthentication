@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.Handlers;
+using Nager.EmailAuthentication.Helpers;
 using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.Models.Dkim;
 using Nager.EmailAuthentication.RegexProviders;
@@ -136,8 +137,10 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 }
             };
 
+            var unfoldDkimSignatureHeader = MailHeaderHelper.UnfoldingHeader(dkimSignature);
+
             var parserBase = new KeyValueParserBase<DkimSignatureDataFragmentV1>(handlers);
-            return parserBase.TryParse(dkimSignature, out dkimSignatureDataFragment, out parsingResults);
+            return parserBase.TryParse(unfoldDkimSignatureHeader, out dkimSignatureDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidatePositiveNumber(
