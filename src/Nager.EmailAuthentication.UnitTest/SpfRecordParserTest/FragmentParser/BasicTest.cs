@@ -1,4 +1,7 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models.Spf;
+using Nager.EmailAuthentication.Models.Spf.Mechanisms;
+using Nager.EmailAuthentication.Models.Spf.Modifiers;
 
 namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
 {
@@ -15,6 +18,22 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment);
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
+
+
+            if (spfDataFragment.SpfTerms[0] is SpfModifierBase spfModifier)
+            {
+                Assert.Fail("Wrong mapping, is not a modifier");
+            }
+
+            if (spfDataFragment.SpfTerms[0] is not SpfMechanismBase spfMechanism)
+            {
+                Assert.Fail("Wrong mapping, is a mechanism");
+                return;
+            }
+
+            Assert.AreEqual(MechanismType.Include, spfMechanism.MechanismType);
+            Assert.AreEqual("spf.protection.outlook.com", spfMechanism.MechanismData);
+            Assert.AreEqual(SpfQualifier.Pass, spfMechanism.Qualifier);
         }
 
         [TestMethod]
@@ -27,6 +46,20 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment);
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(1, spfDataFragment.SpfTerms.Length);
+
+            if (spfDataFragment.SpfTerms[0] is SpfMechanismBase spfMechanism)
+            {
+                Assert.Fail("Wrong mapping, is not a mechanism");
+            }
+
+            if (spfDataFragment.SpfTerms[0] is not SpfModifierBase spfModifier)
+            {
+                Assert.Fail("Wrong mapping, is a modifier");
+                return;
+            }
+
+            Assert.AreEqual(ModifierType.Redirect, spfModifier.ModifierType);
+            Assert.AreEqual("spf.provider.com", spfModifier.ModifierData);
         }
 
         [TestMethod]
