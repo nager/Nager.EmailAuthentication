@@ -13,16 +13,20 @@
 	  
     <!--<PackageIcon>logo.png</PackageIcon>-->
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <!--<PackageReleaseNotes></PackageReleaseNotes>-->
     <PackageProjectUrl>https://github.com/nager/Nager.EmailAuthentication</PackageProjectUrl>
     <PackageTags>EmailAuthentication Dmarc Dkim</PackageTags>
 	  
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <Version>3.0.0-alpha</Version>
+    <Version>3.0.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\docs\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+	
   <ItemGroup>
     <PackageReference Include="Nager.KeyValueParser" Version="1.1.0" />
   </ItemGroup>
