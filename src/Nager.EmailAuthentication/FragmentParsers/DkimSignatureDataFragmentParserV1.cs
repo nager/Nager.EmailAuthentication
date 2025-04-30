@@ -520,6 +520,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
             var parts = validateRequest.Value.Split(':');
 
+            //https://datatracker.ietf.org/doc/html/rfc6376 -> Attacks Involving Extra Header Fields
             //https://security.stackexchange.com/questions/265408/how-many-times-need-e-mail-headers-be-signed-with-dkim-to-mitigate-dkim-header-i#:~:text=If%20the%20e%2Dmail%20uses,field%20of%20the%20DKIM%20signature.
             var groupedHeaders = parts.GroupBy(o => o).Select(g => new { Key = g.Key.ToLower(), Count = g.Count() });
             foreach (var groupedHeader in groupedHeaders)

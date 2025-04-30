@@ -172,8 +172,8 @@ namespace Nager.EmailAuthentication
             dkimSignature = new DkimSignatureV1
             {
                 Version = dkimSignatureDataFragment.Version,
-                SigningDomainIdentifier = dkimSignatureDataFragment.SigningDomainIdentifier.Trim(' ', '\t'),
-                Selector = dkimSignatureDataFragment.Selector.Trim(' ', '\t'),
+                SigningDomainIdentifier = dkimSignatureDataFragment.SigningDomainIdentifier,
+                Selector = dkimSignatureDataFragment.Selector,
                 BodyHash = dkimSignatureDataFragment.BodyHash,
                 BodyLengthCount = bodyLengthCount,
                 QueryMethods = dkimSignatureDataFragment.QueryMethods,
