@@ -13,16 +13,22 @@ namespace Nager.EmailAuthentication.FragmentParsers
         /// <summary>
         /// Try Parse
         /// </summary>
-        /// <param name="spf"></param>
+        /// <param name="spfString"></param>
         /// <param name="spfDataFragment"></param>
         /// <returns></returns>
         public static bool TryParse(
-            string spf,
+            string? spfString,
             [NotNullWhen(true)] out SpfRecordDataFragmentV1? spfDataFragment)
         {
             var spfPrefix = "v=spf1 ";
 
-            if (!spf.StartsWith(spfPrefix, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(spfString))
+            {
+                spfDataFragment = null;
+                return false;
+            }
+
+            if (!spfString.StartsWith(spfPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 spfDataFragment = null;
                 return false;
@@ -49,7 +55,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
             var spfTermDelimiter = ' ';
             var allowedQualifiers = new char[] { '+', '?', '~', '-' };
-            var inputSpan = spf.AsSpan()[spfPrefix.Length..];
+            var inputSpan = spfString.AsSpan()[spfPrefix.Length..];
             var nextIndexOfDelimiter = 0;
             var termIndex = 0;
 

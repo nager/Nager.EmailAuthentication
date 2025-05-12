@@ -13,29 +13,29 @@ namespace Nager.EmailAuthentication.FragmentParsers
         /// <summary>
         /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragmentV1"/> object.
         /// </summary>
-        /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
+        /// <param name="dmarcString">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
-            string? dmarcRaw,
+            string? dmarcString,
             [NotNullWhen(true)] out DmarcRecordDataFragmentV1? dmarcDataFragment)
         {
-            return TryParse(dmarcRaw, out dmarcDataFragment, out _);
+            return TryParse(dmarcString, out dmarcDataFragment, out _);
         }
 
         /// <summary>
         /// Attempts to parse a raw DMARC string into a <see cref="DmarcRecordDataFragmentV1"/> object.
         /// </summary>
-        /// <param name="dmarcRaw">The raw DMARC string to parse.</param>
+        /// <param name="dmarcString">The raw DMARC string to parse.</param>
         /// <param name="dmarcDataFragment">The parsed DMARC record, if successful.</param>
         /// <param name="parsingResults">A list of errors in the DMARC string, if any.</param>
         /// <returns><see langword="true"/> if parsing is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParse(
-            string? dmarcRaw,
+            string? dmarcString,
             [NotNullWhen(true)] out DmarcRecordDataFragmentV1? dmarcDataFragment,
             out ParsingResult[]? parsingResults)
         {
-            if (string.IsNullOrWhiteSpace(dmarcRaw))
+            if (string.IsNullOrWhiteSpace(dmarcString))
             {
                 parsingResults = null;
                 dmarcDataFragment = null;
@@ -125,7 +125,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
             };
 
             var parserBase = new KeyValueParserBase<DmarcRecordDataFragmentV1>(handlers);
-            return parserBase.TryParse(dmarcRaw, out dmarcDataFragment, out parsingResults);
+            return parserBase.TryParse(dmarcString, out dmarcDataFragment, out parsingResults);
         }
 
         private static ParsingResult[] ValidateVersion(ValidateRequest validateRequest)
