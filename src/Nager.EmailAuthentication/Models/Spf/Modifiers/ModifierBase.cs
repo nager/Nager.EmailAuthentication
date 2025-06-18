@@ -1,9 +1,9 @@
 ﻿namespace Nager.EmailAuthentication.Models.Spf.Modifiers
 {
     /// <summary>
-    /// Spf Modifier Base
+    /// Modifier Base
     /// </summary>
-    public abstract class SpfModifierBase : SpfTerm
+    public abstract class ModifierBase : SpfTerm
     {
         internal char Delimiter = '=';
 
@@ -18,10 +18,10 @@
         public string? ModifierData { get; private set; }
 
         /// <summary>
-        /// Spf Modifier Base
+        /// Modifier Base
         /// </summary>
         /// <param name="modifierType"></param>
-        public SpfModifierBase(ModifierType modifierType)
+        public ModifierBase(ModifierType modifierType)
         {
             this.ModifierType = modifierType;
         }

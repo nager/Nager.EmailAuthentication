@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "redirect" modifier in an SPF record, which redirects SPF evaluation to another domain's policy.
     /// </summary>
-    public class RedirectModifier : SpfModifierBase
+    public class RedirectModifier : ModifierBase
     {
         /// <summary>
         /// The key representing the "redirect" modifier in an SPF record.

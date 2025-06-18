@@ -20,12 +20,12 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
 
 
-            if (spfDataFragment.SpfTerms[0] is SpfModifierBase spfModifier)
+            if (spfDataFragment.SpfTerms[0] is ModifierBase spfModifier)
             {
                 Assert.Fail("Wrong mapping, is not a modifier");
             }
 
-            if (spfDataFragment.SpfTerms[0] is not SpfMechanismBase spfMechanism)
+            if (spfDataFragment.SpfTerms[0] is not MechanismBase spfMechanism)
             {
                 Assert.Fail("Wrong mapping, is a mechanism");
                 return;
@@ -47,12 +47,12 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(1, spfDataFragment.SpfTerms.Length);
 
-            if (spfDataFragment.SpfTerms[0] is SpfMechanismBase spfMechanism)
+            if (spfDataFragment.SpfTerms[0] is MechanismBase spfMechanism)
             {
                 Assert.Fail("Wrong mapping, is not a mechanism");
             }
 
-            if (spfDataFragment.SpfTerms[0] is not SpfModifierBase spfModifier)
+            if (spfDataFragment.SpfTerms[0] is not ModifierBase spfModifier)
             {
                 Assert.Fail("Wrong mapping, is a modifier");
                 return;

@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "include" mechanism in an SPF record, which includes another domain's SPF policy.
     /// </summary>
-    public class IncludeMechanism : SpfMechanismBase
+    public class IncludeMechanism : MechanismBase
     {
         /// <summary>
         /// The key representing the "include" mechanism in an SPF record.

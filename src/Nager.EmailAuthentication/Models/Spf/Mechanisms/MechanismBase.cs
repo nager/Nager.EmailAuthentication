@@ -1,9 +1,9 @@
 ﻿namespace Nager.EmailAuthentication.Models.Spf.Mechanisms
 {
     /// <summary>
-    /// Spf Mechanism Base
+    /// Mechanism Base
     /// </summary>
-    public abstract class SpfMechanismBase : SpfTerm
+    public abstract class MechanismBase : SpfTerm
     {
         internal char Delimiter = ':';
 
@@ -23,10 +23,10 @@
         public string? MechanismData { get; private set; }
 
         /// <summary>
-        /// Spf Mechanism Base
+        /// Mechanism Base
         /// </summary>
         /// <param name="mechanismType"></param>
-        public SpfMechanismBase(MechanismType mechanismType)
+        public MechanismBase(MechanismType mechanismType)
         {
             this.MechanismType = mechanismType;
         }

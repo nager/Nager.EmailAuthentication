@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "ptr" mechanism in an SPF record, which authorizes the sender based on reverse DNS lookups.
     /// </summary>
-    public class PtrMechanism : SpfMechanismBase
+    public class PtrMechanism : MechanismBase
     {
         /// <summary>
         /// The key representing the "ptr" mechanism in an SPF record.

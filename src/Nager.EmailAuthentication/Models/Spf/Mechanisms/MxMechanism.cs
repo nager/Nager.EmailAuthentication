@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "mx" mechanism in an SPF record, which authorizes the sender if their IP matches one of the domain's MX records.
     /// </summary>
-    public class MxMechanism : SpfMechanismBase
+    public class MxMechanism : MechanismBase
     {
         /// <summary>
         /// The key representing the "mx" mechanism in an SPF record.

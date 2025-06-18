@@ -103,7 +103,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
                     term.Index = termIndex;
 
-                    if (term is SpfMechanismBase spfMechanism)
+                    if (term is MechanismBase spfMechanism)
                     {
                         spfMechanism.SetQualifier(qualifier);
 
@@ -133,7 +133,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
                     term.Index = termIndex;
 
-                    if (term is SpfModifierBase spfModifier)
+                    if (term is ModifierBase spfModifier)
                     {
                         value = value[modifierType.Key.Length..];
                         if (value.Length > 0)

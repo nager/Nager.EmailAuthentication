@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Tino Hager</Authors>
     <Company>nager.at</Company>
-    <Description>Email Authentication, DMARC Record Validation, DKIM Record Validation, DKIM Signature Validation</Description>
+    <Description>Email Authentication, DMARC Record Validation, DKIM Record Validation, DKIM Signature Validation, SPF</Description>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -20,7 +20,7 @@
 	  
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <Version>3.0.1</Version>
+    <Version>4.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

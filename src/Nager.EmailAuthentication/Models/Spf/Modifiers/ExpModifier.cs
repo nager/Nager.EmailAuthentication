@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "exp" modifier in an SPF record, which provides an explanation in case of SPF failure.
     /// </summary>
-    public class ExpModifier : SpfModifierBase
+    public class ExpModifier : ModifierBase
     {
         /// <summary>
         /// The key representing the "exp" modifier in an SPF record.

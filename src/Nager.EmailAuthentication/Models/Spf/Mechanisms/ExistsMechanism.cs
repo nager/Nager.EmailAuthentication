@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the "exists" mechanism in an SPF record, which authorizes the sender if a specific DNS record exists.
     /// </summary>
-    public class ExistsMechanism : SpfMechanismBase
+    public class ExistsMechanism : MechanismBase
     {
         /// <summary>
         /// The key representing the "exists" mechanism in an SPF record.

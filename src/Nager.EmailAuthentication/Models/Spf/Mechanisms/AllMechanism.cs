@@ -4,7 +4,7 @@
     /// Represents the "all" mechanism in an SPF record, which matches all senders.
     /// Typically used as the last mechanism in an SPF policy.
     /// </summary>
-    public class AllMechanism : SpfMechanismBase
+    public class AllMechanism : MechanismBase
     {
         /// <summary>
         /// The key representing the "all" mechanism in an SPF record.
