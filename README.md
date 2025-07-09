@@ -2,9 +2,9 @@
 
 Nager.EmailAuthentication is a .NET library for parsing and validating DMARC, DKIM and SPF records.
 
-- DMARC (Domain-based Message Authentication, Reporting, and Conformance) enables domain owners to specify how mail receivers should handle emails that fail authentication.
-- DKIM (DomainKeys Identified Mail) adds a cryptographic signature to outgoing emails to ensure their authenticity and integrity.
-- SPF (Sender Policy Framework) specifies which IP addresses are allowed to send email on behalf of a domain.
+- **DMARC** (Domain-based Message Authentication, Reporting, and Conformance) enables domain owners to specify how mail receivers should handle emails that fail authentication.
+- **DKIM** (DomainKeys Identified Mail) adds a cryptographic signature to outgoing emails to ensure their authenticity and integrity.
+- **SPF** (Sender Policy Framework) specifies which IP addresses are allowed to send email on behalf of a domain.
 
 This library provides comprehensive parsing and validation of DMARC, DKIM and SPF configurations, making it easy to integrate email authentication checks into your applications.
 
