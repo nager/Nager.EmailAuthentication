@@ -73,5 +73,17 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(7, spfDataFragment.SpfTerms.Length);
         }
+
+        [TestMethod]
+        public void Should_Parse_Spf_With_Ip4_Uppercase()
+        {
+            var spf = "v=spf1 IP4:155.56.66.96 IP4:155.56.66.102/31 -all";
+            var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(spfDataFragment);
+            Assert.IsNotNull(spfDataFragment.SpfTerms);
+            Assert.AreEqual(3, spfDataFragment.SpfTerms.Length);
+        }
     }
 }

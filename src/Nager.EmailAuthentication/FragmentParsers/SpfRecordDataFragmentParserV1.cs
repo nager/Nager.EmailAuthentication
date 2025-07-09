@@ -90,7 +90,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
                 foreach (var mechanismType in mechanismTypes)
                 {
-                    if (!value.StartsWith(mechanismType.Key))
+                    if (!value.StartsWith(mechanismType.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
@@ -120,7 +120,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
                 foreach (var modifierType in modifierTypes)
                 {
-                    if (!value.StartsWith(modifierType.Key))
+                    if (!value.StartsWith(modifierType.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
@@ -145,6 +145,8 @@ namespace Nager.EmailAuthentication.FragmentParsers
                         break;
                     }
                 }
+
+                //Failure found no match
 
                 inputSpan = inputSpan[(nextIndexOfDelimiter + 1)..];
             }
