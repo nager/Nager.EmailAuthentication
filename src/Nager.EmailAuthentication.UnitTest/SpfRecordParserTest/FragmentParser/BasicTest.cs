@@ -96,5 +96,19 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
         }
+
+        [TestMethod]
+        public void Should_Parse_Spf_With_A()
+        {
+            var spf = "v=spf1 a -all ";
+            var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(spfDataFragment);
+            Assert.IsNotNull(spfDataFragment.SpfTerms);
+            Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
+            Assert.IsTrue(spfDataFragment.SpfTerms[0] is AMechanism);
+            Assert.IsTrue(spfDataFragment.SpfTerms[1] is AllMechanism);
+        }
     }
 }

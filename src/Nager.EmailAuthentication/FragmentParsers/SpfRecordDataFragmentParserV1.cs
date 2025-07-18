@@ -37,6 +37,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
             var spfTerms = new List<SpfTerm>();
             var mechanismTypes = new Dictionary<string, Type>
             {
+                { AllMechanism.MechanismKey,      typeof(AllMechanism) }, //The order must not be changed, ALL mechanisms must be placed before the A mechanisms.
                 { Ip4Mechanism.MechanismKey,      typeof(Ip4Mechanism) },
                 { Ip6Mechanism.MechanismKey,      typeof(Ip6Mechanism) },
                 { IncludeMechanism.MechanismKey,  typeof(IncludeMechanism) },
@@ -44,7 +45,6 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 { MxMechanism.MechanismKey,       typeof(MxMechanism) },
                 { ExistsMechanism.MechanismKey,   typeof(ExistsMechanism) },
                 { PtrMechanism.MechanismKey,      typeof(PtrMechanism) },
-                { AllMechanism.MechanismKey,      typeof(AllMechanism) },
             };
 
             var modifierTypes = new Dictionary<string, Type>
