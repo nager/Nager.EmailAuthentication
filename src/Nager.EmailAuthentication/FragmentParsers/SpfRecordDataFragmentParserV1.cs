@@ -37,14 +37,14 @@ namespace Nager.EmailAuthentication.FragmentParsers
             var spfTerms = new List<SpfTerm>();
             var mechanismTypes = new Dictionary<string, Type>
             {
-                { AllMechanism.MechanismKey,      typeof(AllMechanism) },
                 { Ip4Mechanism.MechanismKey,      typeof(Ip4Mechanism) },
                 { Ip6Mechanism.MechanismKey,      typeof(Ip6Mechanism) },
                 { IncludeMechanism.MechanismKey,  typeof(IncludeMechanism) },
-                { ExistsMechanism.MechanismKey,   typeof(ExistsMechanism) },
                 { AMechanism.MechanismKey,        typeof(AMechanism) },
                 { MxMechanism.MechanismKey,       typeof(MxMechanism) },
+                { ExistsMechanism.MechanismKey,   typeof(ExistsMechanism) },
                 { PtrMechanism.MechanismKey,      typeof(PtrMechanism) },
+                { AllMechanism.MechanismKey,      typeof(AllMechanism) },
             };
 
             var modifierTypes = new Dictionary<string, Type>
@@ -64,6 +64,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 termIndex++;
 
                 nextIndexOfDelimiter = inputSpan.IndexOf(spfTermDelimiter);
+
                 if (nextIndexOfDelimiter == 0)
                 {
                     inputSpan = inputSpan[1..];
@@ -80,6 +81,11 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     value = inputSpan[..nextIndexOfDelimiter].Trim();
                 }
 
+                if (value.Length == 0)
+                {
+                    continue;
+                }
+
                 var qualifier = '+';
                 var indexOfQualifier = Array.IndexOf(allowedQualifiers, value[0]);
                 if (indexOfQualifier != -1)
@@ -88,6 +94,8 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     value = value[1..];
                 }
 
+                var match = false;
+
                 foreach (var mechanismType in mechanismTypes)
                 {
                     if (!value.StartsWith(mechanismType.Key, StringComparison.OrdinalIgnoreCase))
@@ -95,8 +103,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
                         continue;
                     }
 
-                    var term = Activator.CreateInstance(mechanismType.Value) as SpfTerm;
-                    if (term is null)
+                    if (Activator.CreateInstance(mechanismType.Value) is not SpfTerm term)
                     {
                         continue;
                     }
@@ -114,39 +121,45 @@ namespace Nager.EmailAuthentication.FragmentParsers
                         }
 
                         spfTerms.Add(spfMechanism);
+                        match = true;
                         break;
                     }
                 }
 
-                foreach (var modifierType in modifierTypes)
+                if (!match)
                 {
-                    if (!value.StartsWith(modifierType.Key, StringComparison.OrdinalIgnoreCase))
+                    foreach (var modifierType in modifierTypes)
                     {
-                        continue;
-                    }
-
-                    var term = Activator.CreateInstance(modifierType.Value) as SpfTerm;
-                    if (term is null)
-                    {
-                        continue;
-                    }
-
-                    term.Index = termIndex;
-
-                    if (term is ModifierBase spfModifier)
-                    {
-                        value = value[modifierType.Key.Length..];
-                        if (value.Length > 0)
+                        if (!value.StartsWith(modifierType.Key, StringComparison.OrdinalIgnoreCase))
                         {
-                            spfModifier.GetDataPart(value);
+                            continue;
                         }
 
-                        spfTerms.Add(spfModifier);
-                        break;
+                        if (Activator.CreateInstance(modifierType.Value) is not SpfTerm term)
+                        {
+                            continue;
+                        }
+
+                        term.Index = termIndex;
+
+                        if (term is ModifierBase spfModifier)
+                        {
+                            value = value[modifierType.Key.Length..];
+                            if (value.Length > 0)
+                            {
+                                spfModifier.GetDataPart(value);
+                            }
+
+                            spfTerms.Add(spfModifier);
+                            break;
+                        }
                     }
                 }
 
-                //Failure found no match
+                if (!match)
+                {
+                    //Failure found no match
+                }
 
                 inputSpan = inputSpan[(nextIndexOfDelimiter + 1)..];
             }

@@ -19,7 +19,6 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
 
-
             if (spfDataFragment.SpfTerms[0] is ModifierBase spfModifier)
             {
                 Assert.Fail("Wrong mapping, is not a modifier");
@@ -84,6 +83,18 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.IsNotNull(spfDataFragment);
             Assert.IsNotNull(spfDataFragment.SpfTerms);
             Assert.AreEqual(3, spfDataFragment.SpfTerms.Length);
+        }
+
+        [TestMethod]
+        public void Should_Parse_Spf_With_Includes_And_Space_At_The_End()
+        {
+            var spf = "v=spf1 include:spf.protection.outlook.com -all ";
+            var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(spfDataFragment);
+            Assert.IsNotNull(spfDataFragment.SpfTerms);
+            Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
         }
     }
 }
