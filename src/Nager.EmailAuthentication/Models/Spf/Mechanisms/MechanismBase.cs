@@ -77,7 +77,7 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{this.Qualifier} {this.MechanismType} {this.MechanismData}";
+            return $"{this.MechanismType} Qualifier:{this.Qualifier} Data:{this.MechanismData}";
         }
     }
 }

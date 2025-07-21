@@ -20,7 +20,7 @@
 	  
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
-    <Version>4.0.3</Version>
+    <Version>4.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -46,7 +46,7 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{this.ModifierType} {this.ModifierData}";
+            return $"{this.ModifierType} Data:{this.ModifierData}";
         }
     }
 }
