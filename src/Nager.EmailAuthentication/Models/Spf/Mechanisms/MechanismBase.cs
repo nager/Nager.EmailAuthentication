@@ -49,7 +49,7 @@
                     this.Qualifier = SpfQualifier.Fail;
                     return;
                 case '?':
-                    this.Qualifier = SpfQualifier.SoftFail;
+                    this.Qualifier = SpfQualifier.Neutral;
                     return;
                 default:
                     this.Qualifier = SpfQualifier.Unknown;
