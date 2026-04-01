@@ -83,6 +83,11 @@ namespace Nager.EmailAuthentication.FragmentParsers
 
                 if (value.Length == 0)
                 {
+                    if (nextIndexOfDelimiter != -1)
+                    {
+                        inputSpan = inputSpan[nextIndexOfDelimiter..];
+                    }
+
                     continue;
                 }
 

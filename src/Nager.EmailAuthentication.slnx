@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Nager.EmailAuthentication.UnitTest/Nager.EmailAuthentication.UnitTest.csproj" />
+  <Project Path="Nager.EmailAuthentication/Nager.EmailAuthentication.csproj" />
+</Solution>

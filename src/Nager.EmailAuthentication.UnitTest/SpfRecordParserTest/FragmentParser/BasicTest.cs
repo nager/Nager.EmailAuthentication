@@ -100,7 +100,7 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
         [TestMethod]
         public void Should_Parse_Spf_With_A()
         {
-            var spf = "v=spf1 a -all ";
+            var spf = "v=spf1 a -all";
             var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
 
             Assert.IsTrue(isSuccessful);
@@ -109,6 +109,34 @@ namespace Nager.EmailAuthentication.UnitTest.SpfRecordParserTest.FragmentParser
             Assert.AreEqual(2, spfDataFragment.SpfTerms.Length);
             Assert.IsTrue(spfDataFragment.SpfTerms[0] is AMechanism);
             Assert.IsTrue(spfDataFragment.SpfTerms[1] is AllMechanism);
+        }
+
+        [TestMethod]
+        public void Should_Parse_Spf_With_All()
+        {
+            var spf = "v=spf1 -all";
+            var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(spfDataFragment);
+            Assert.IsNotNull(spfDataFragment.SpfTerms);
+            Assert.AreEqual(1, spfDataFragment.SpfTerms.Length);
+            Assert.IsTrue(spfDataFragment.SpfTerms[0] is AllMechanism);
+        }
+
+        [TestMethod]
+        public void Should_Parse_Spf_With_Corrupt_LineBreak()
+        {
+            var spf = "v=spf1 include:spf.protection.outlook.com \r\n ip4:1.2.3.4 -all";
+            var isSuccessful = SpfRecordDataFragmentParserV1.TryParse(spf, out var spfDataFragment);
+
+            Assert.IsTrue(isSuccessful);
+            Assert.IsNotNull(spfDataFragment);
+            Assert.IsNotNull(spfDataFragment.SpfTerms);
+            Assert.AreEqual(3, spfDataFragment.SpfTerms.Length);
+            Assert.IsTrue(spfDataFragment.SpfTerms[0] is IncludeMechanism);
+            Assert.IsTrue(spfDataFragment.SpfTerms[1] is Ip4Mechanism);
+            Assert.IsTrue(spfDataFragment.SpfTerms[2] is AllMechanism);
         }
     }
 }
