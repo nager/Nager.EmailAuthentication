@@ -16,7 +16,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <!--<PackageReleaseNotes></PackageReleaseNotes>-->
     <PackageProjectUrl>https://github.com/nager/Nager.EmailAuthentication</PackageProjectUrl>
-    <PackageTags>EmailAuthentication Dmarc Dkim</PackageTags>
+    <PackageTags>EmailAuthentication Dmarc Dkim Spf</PackageTags>
 	  
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
 
