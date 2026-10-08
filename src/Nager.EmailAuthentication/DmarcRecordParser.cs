@@ -344,7 +344,7 @@ namespace Nager.EmailAuthentication
             string input,
             [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
         {
-            if (Enum.TryParse(input, true, out DmarcPolicy parsedPolicy) && Enum.IsDefined(parsedPolicy))
+            if (!int.TryParse(input, out _) && Enum.TryParse(input, true, out DmarcPolicy parsedPolicy) && Enum.IsDefined(parsedPolicy))
             {
                 dmarcPolicy = parsedPolicy;
                 return true;
