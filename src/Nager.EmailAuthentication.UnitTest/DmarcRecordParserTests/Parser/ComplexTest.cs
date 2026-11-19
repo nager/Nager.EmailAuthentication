@@ -87,6 +87,19 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.Parser
             Assert.IsNull(dmarcRecord);
         }
 
+        [TestMethod]
+        public void TryParse_InvalidDmarcStringNoValueAfterExclamationMark_ReturnFalse()
+        {
+            var recordRaw = "v=DMARC1; p=none; rua=mailto:postmaster@example.com!";
+
+            var isParserSuccessful = DmarcRecordParser.TryParse(recordRaw, out var dmarcRecord);
+
+            Assert.IsFalse(isParserSuccessful);
+            Assert.IsNull(dmarcRecord);
+        }
+
+        //
+
         [DataRow(1)]
         [DataRow(2)]
         [DataRow(3)]

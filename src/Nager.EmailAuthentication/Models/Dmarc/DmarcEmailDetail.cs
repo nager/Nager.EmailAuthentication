@@ -65,6 +65,12 @@ namespace Nager.EmailAuthentication.Models.Dmarc
             var dataStartIndex = exclamationMarkIndex + 1;
             var dataLength = emailAddress.Length - dataStartIndex;
 
+            if (dataLength == 0)
+            {
+                dmarcEmailDetail = null;
+                return false;
+            }
+
             if (int.TryParse(emailAddress.AsSpan(dataStartIndex, dataLength - 1), out var maximumSize))
             {
                 var multiplier = 0;
