@@ -10,19 +10,37 @@ namespace Nager.EmailAuthentication
     /// </summary>
     public static class DmarcRecordParser
     {
-        private static bool ValidateRaw(string? dmarcRaw)
+        private const string DmarcVersion = "DMARC1";
+
+        /// <summary>
+        /// Determines whether a TXT record is a DMARC record: it starts with the version tag "v=DMARC1".
+        /// The value of the version tag is case sensitive, whitespace around the equal sign is allowed (RFC 9989 section 4.7 and 4.8).
+        /// Records that do not start with the version tag are ignored by mail receivers.
+        /// </summary>
+        /// <param name="txtRecord">The content of a TXT record.</param>
+        /// <returns><c>true</c> if the record starts with the DMARC version tag; otherwise, <c>false</c>.</returns>
+        public static bool IsDmarcRecord([NotNullWhen(true)] string? txtRecord)
         {
-            if (string.IsNullOrWhiteSpace(dmarcRaw))
+            var remaining = txtRecord.AsSpan().TrimStart();
+            if (remaining.Length == 0 || (remaining[0] != 'v' && remaining[0] != 'V'))
             {
                 return false;
             }
 
-            if (!dmarcRaw.StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase))
+            remaining = remaining[1..].TrimStart();
+            if (remaining.Length == 0 || remaining[0] != '=')
             {
                 return false;
             }
 
-            return true;
+            remaining = remaining[1..].TrimStart();
+            if (!remaining.StartsWith(DmarcVersion, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            remaining = remaining[DmarcVersion.Length..].TrimStart();
+            return remaining.Length == 0 || remaining[0] == ';';
         }
 
         /// <summary>
@@ -34,39 +52,25 @@ namespace Nager.EmailAuthentication
         /// otherwise, <c>null</c>.
         /// </param>
         /// <returns>
-        /// <c>true</c> if the parsing was successful (i.e., all required fields are present and valid); 
+        /// <c>true</c> if the parsing was successful (i.e., mail receivers can apply the record); 
         /// otherwise, <c>false</c>.
         /// </returns>
         public static bool TryParse(
             string? dmarcRaw,
             [NotNullWhen(true)] out DmarcRecordBase? dmarcRecord)
         {
-            if (!ValidateRaw(dmarcRaw))
-            {
-                dmarcRecord = null;
-                return false;
-            }
-
-            if (DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out _))
-            {
-                if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
-                {
-                    if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
-                    {
-                        dmarcRecord = dmarcRecordV1;
-                        return true;
-                    }
-                }
-            }
-
-            dmarcRecord = null;
-            return false;
+            return TryParse(dmarcRaw, out dmarcRecord, out _);
         }
 
         /// <summary>
         /// Attempts to parse a raw DMARC record string into a <see cref="DmarcRecordBase"/> object while also 
         /// returning additional parsing details.
         /// </summary>
+        /// <remarks>
+        /// The record is interpreted like a mail receiver does (RFC 9989): unknown tags and tags with an invalid value
+        /// are ignored in favor of their default value and reported in <paramref name="parsingResults"/>.
+        /// The parsing only fails if mail receivers ignore the whole record.
+        /// </remarks>
         /// <param name="dmarcRaw">The raw DMARC record string to be parsed.</param>
         /// <param name="dmarcRecord">
         /// When this method returns, contains the parsed <see cref="DmarcRecordBase"/> if the parsing succeeded; 
@@ -74,8 +78,8 @@ namespace Nager.EmailAuthentication
         /// </param>
         /// <param name="parsingResults">
         /// When this method returns, contains an array of <see cref="ParsingResult"/> objects with additional details 
-        /// (such as warnings or informational messages) regarding the parsing process. This value may be <c>null</c>
-        /// if the parsing did not occur.
+        /// (such as errors, warnings or informational messages) regarding the parsing process. This value may be <c>null</c>
+        /// if the parsing did not occur or there are no details.
         /// </param>
         /// <returns>
         /// <c>true</c> if the parsing was successful; otherwise, <c>false</c>.
@@ -85,175 +89,195 @@ namespace Nager.EmailAuthentication
             [NotNullWhen(true)] out DmarcRecordBase? dmarcRecord,
             out ParsingResult[]? parsingResults)
         {
-            if (!ValidateRaw(dmarcRaw))
+            dmarcRecord = null;
+
+            if (!IsDmarcRecord(dmarcRaw))
             {
-                dmarcRecord = null;
                 parsingResults = null;
                 return false;
             }
 
-            if (DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
+            if (!DmarcRecordDataFragmentParserV1.TryParse(dmarcRaw, out var dataFragment, out parsingResults))
             {
-                if (dataFragment is DmarcRecordDataFragmentV1 dataFragmentV1)
-                {
-                    if (TryParseV1(dataFragmentV1, out var dmarcRecordV1))
-                    {
-                        dmarcRecord = dmarcRecordV1;
-                        return true;
-                    }
-                }
+                return false;
             }
 
-            dmarcRecord = null;
-            return false;
+            var isSuccessful = TryParseV1(dataFragment, out var dmarcRecordV1, out var recordParsingResults);
+            if (recordParsingResults != null)
+            {
+                parsingResults = [.. parsingResults ?? [], .. recordParsingResults];
+            }
+
+            dmarcRecord = dmarcRecordV1;
+            return isSuccessful;
         }
 
         /// <summary>
-        /// Attempts to convert a <see cref="DmarcRecordDataFragmentV1"/> into a fully validated 
-        /// <see cref="DmarcRecordV1"/> by parsing and validating all required DMARC fields.
+        /// Attempts to convert a <see cref="DmarcRecordDataFragmentV1"/> into a <see cref="DmarcRecordV1"/>.
         /// </summary>
         /// <param name="dmarcDataFragment">
         /// The <see cref="DmarcRecordDataFragmentV1"/> containing individual DMARC parameter strings to be parsed.
         /// </param>
         /// <param name="dmarcRecord">
-        /// When this method returns, contains the parsed and validated <see cref="DmarcRecordV1"/> if successful; 
+        /// When this method returns, contains the parsed <see cref="DmarcRecordV1"/> if successful; 
         /// otherwise, <c>null</c>.
         /// </param>
         /// <returns>
-        /// <c>true</c> if the conversion and validation were successful; otherwise, <c>false</c>.
+        /// <c>true</c> if the conversion was successful; otherwise, <c>false</c>.
         /// </returns>
         public static bool TryParseV1(
             DmarcRecordDataFragmentV1 dmarcDataFragment,
             [NotNullWhen(true)] out DmarcRecordV1? dmarcRecord)
         {
+            return TryParseV1(dmarcDataFragment, out dmarcRecord, out _);
+        }
+
+        /// <summary>
+        /// Attempts to convert a <see cref="DmarcRecordDataFragmentV1"/> into a <see cref="DmarcRecordV1"/>
+        /// the way a mail receiver interprets the record (RFC 9989).
+        /// </summary>
+        /// <remarks>
+        /// Tags with an invalid value are ignored in favor of their default value (RFC 9989 section 4.8).
+        /// A record without a valid policy ("p", "sp" and "np") is treated like "p=none" if it has a valid URI
+        /// for aggregate reports, otherwise mail receivers ignore it and the conversion fails (RFC 9989 section 4.10.1).
+        /// </remarks>
+        /// <param name="dmarcDataFragment">
+        /// The <see cref="DmarcRecordDataFragmentV1"/> containing individual DMARC parameter strings to be parsed.
+        /// </param>
+        /// <param name="dmarcRecord">
+        /// When this method returns, contains the parsed <see cref="DmarcRecordV1"/> if successful; 
+        /// otherwise, <c>null</c>.
+        /// </param>
+        /// <param name="parsingResults">
+        /// When this method returns, contains the findings that concern the record as a whole, e.g. a missing policy.
+        /// This value is <c>null</c> if there are none. Findings for single tags are reported by
+        /// <see cref="DmarcRecordDataFragmentParserV1"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the conversion was successful; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryParseV1(
+            DmarcRecordDataFragmentV1 dmarcDataFragment,
+            [NotNullWhen(true)] out DmarcRecordV1? dmarcRecord,
+            out ParsingResult[]? parsingResults)
+        {
             dmarcRecord = null;
+            parsingResults = null;
 
-            if (string.IsNullOrEmpty(dmarcDataFragment.Version))
-            {
-                return false;
-            }
-
-            if (!dmarcDataFragment.Version.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
+            if (!DmarcVersion.Equals(dmarcDataFragment.Version, StringComparison.Ordinal))
             {
                 return false;
             }
 
             var tempDmarcRecord = new DmarcRecordV1()
             {
-                Version = dmarcDataFragment.Version
+                Version = dmarcDataFragment.Version,
+                AggregateReportUri = GetEmailDetails(dmarcDataFragment.AggregateReportUri),
+                ForensicReportUri = GetEmailDetails(dmarcDataFragment.ForensicReportUri),
+                TestMode = "y".Equals(dmarcDataFragment.TestMode, StringComparison.OrdinalIgnoreCase)
             };
 
-            if (string.IsNullOrEmpty(dmarcDataFragment.DomainPolicy))
+            var hasDomainPolicy = TryGetDmarcPolicy(dmarcDataFragment.DomainPolicy, out var domainPolicy);
+            var hasValidSubdomainPolicy = TryGetOptionalDmarcPolicy(dmarcDataFragment.SubdomainPolicy, out var subdomainPolicy);
+            var hasValidNonExistentSubdomainPolicy = TryGetOptionalDmarcPolicy(dmarcDataFragment.NonExistentSubdomainPolicy, out var nonExistentSubdomainPolicy);
+
+            if (hasDomainPolicy && hasValidSubdomainPolicy && hasValidNonExistentSubdomainPolicy)
             {
-                return false;
-            }
-
-            if (!TryGetDmarcPolicy(dmarcDataFragment.DomainPolicy, out var domainDmarcPolicy))
-            {
-                return false;
-            }
-
-            tempDmarcRecord.DomainPolicy = domainDmarcPolicy.Value;
-            tempDmarcRecord.SubdomainPolicy = domainDmarcPolicy.Value;
-
-            if (!string.IsNullOrEmpty(dmarcDataFragment.SubdomainPolicy))
-            {
-                if (!TryGetDmarcPolicy(dmarcDataFragment.SubdomainPolicy, out var subdomainDmarcPolicy))
-                {
-                    return false;
-                }
-
-                tempDmarcRecord.SubdomainPolicy = subdomainDmarcPolicy.Value;
-            }
-
-            if (!TryGetReportingInterval(dmarcDataFragment.ReportingInterval, out var reportingInterval))
-            {
-                return false;
-            }
-            tempDmarcRecord.ReportingInterval = reportingInterval.Value;
-
-            if (!TryGetPolicyPercentage(dmarcDataFragment.PolicyPercentage, out var policyPercentage))
-            {
-                return false;
-            }
-            tempDmarcRecord.PolicyPercentage = policyPercentage.Value;
-
-            if (dmarcDataFragment.ReportFormat == null)
-            {
-                tempDmarcRecord.ReportFormat = "afrf";
+                tempDmarcRecord.DomainPolicy = domainPolicy!.Value;
+                tempDmarcRecord.SubdomainPolicy = subdomainPolicy ?? tempDmarcRecord.DomainPolicy;
+                tempDmarcRecord.NonExistentSubdomainPolicy = nonExistentSubdomainPolicy ?? tempDmarcRecord.SubdomainPolicy;
             }
             else
             {
-                if (!dmarcDataFragment.ReportFormat.Equals("afrf", StringComparison.OrdinalIgnoreCase))
+                var invalidTag = !hasDomainPolicy ? "p" : !hasValidSubdomainPolicy ? "sp" : "np";
+                var hasAggregateReportUri = tempDmarcRecord.AggregateReportUri?.Any(o => o.IsValidEmailAddress) == true;
+
+                if (!hasAggregateReportUri)
                 {
+                    parsingResults =
+                    [
+                        new ParsingResult
+                        {
+                            Status = ParsingStatus.Critical,
+                            Field = invalidTag,
+                            Message = "No valid policy and no valid URI for aggregate reports, mail receivers ignore the record"
+                        }
+                    ];
+
                     return false;
                 }
 
-                tempDmarcRecord.ReportFormat = dmarcDataFragment.ReportFormat;
+                parsingResults =
+                [
+                    new ParsingResult
+                    {
+                        Status = ParsingStatus.Error,
+                        Field = invalidTag,
+                        Message = "No valid policy, mail receivers treat the record like 'p=none'"
+                    }
+                ];
+
+                tempDmarcRecord.DomainPolicy = DmarcPolicy.None;
+                tempDmarcRecord.SubdomainPolicy = DmarcPolicy.None;
+                tempDmarcRecord.NonExistentSubdomainPolicy = DmarcPolicy.None;
             }
 
-            if (dmarcDataFragment.DkimAlignmentMode != null)
+            tempDmarcRecord.PublicSuffixDomain = dmarcDataFragment.PublicSuffixDomain?.ToLowerInvariant() switch
             {
-                if (!TryGetAlignmentMode(dmarcDataFragment.DkimAlignmentMode, out var dkimAlignmentMode))
-                {
-                    return false;
-                }
+                "y" => PublicSuffixDomainMode.Yes,
+                "n" => PublicSuffixDomainMode.No,
+                _ => PublicSuffixDomainMode.Unknown
+            };
+
+            if (TryGetAlignmentMode(dmarcDataFragment.DkimAlignmentMode, out var dkimAlignmentMode))
+            {
                 tempDmarcRecord.DkimAlignmentMode = dkimAlignmentMode.Value;
             }
 
-            if (dmarcDataFragment.SpfAlignmentMode != null)
+            if (TryGetAlignmentMode(dmarcDataFragment.SpfAlignmentMode, out var spfAlignmentMode))
             {
-                if (!TryGetAlignmentMode(dmarcDataFragment.SpfAlignmentMode, out var spfAlignmentMode))
-                {
-                    return false;
-                }
                 tempDmarcRecord.SpfAlignmentMode = spfAlignmentMode.Value;
             }
 
-            if (!string.IsNullOrEmpty(dmarcDataFragment.AggregateReportUri))
-            {
-                if (!TryParseEmailDetails(dmarcDataFragment.AggregateReportUri, out var dmarcEmailDetails))
-                {
-                    return false;
-                }
+            // Obsolete tags of RFC 7489, an invalid value does not affect the record
+            tempDmarcRecord.ReportingInterval = TryGetReportingInterval(dmarcDataFragment.ReportingInterval, out var reportingInterval)
+                ? reportingInterval.Value
+                : TimeSpan.FromSeconds(86400);
 
-                tempDmarcRecord.AggregateReportUri = dmarcEmailDetails;
-            }
+            tempDmarcRecord.PolicyPercentage = TryGetPolicyPercentage(dmarcDataFragment.PolicyPercentage, out var policyPercentage)
+                ? policyPercentage.Value
+                : 100;
 
-            if (!string.IsNullOrEmpty(dmarcDataFragment.ForensicReportUri))
-            {
-                if (!TryParseEmailDetails(dmarcDataFragment.ForensicReportUri, out var dmarcEmailDetails))
-                {
-                    return false;
-                }
-
-                tempDmarcRecord.ForensicReportUri = dmarcEmailDetails;
-            }       
+            tempDmarcRecord.ReportFormat = "afrf".Equals(dmarcDataFragment.ReportFormat, StringComparison.OrdinalIgnoreCase)
+                ? dmarcDataFragment.ReportFormat
+                : "afrf";
 
             dmarcRecord = tempDmarcRecord;
             return true;
         }
 
-        private static bool TryParseEmailDetails(
-            string input,
-            [NotNullWhen(true)] out DmarcEmailDetail[]? dmarcEmailDetails)
+        /// <summary>
+        /// Returns the "mailto:" URIs of a "rua" or "ruf" tag. Mail receivers ignore URIs they do not support
+        /// and URIs with a syntax error.
+        /// </summary>
+        private static DmarcEmailDetail[]? GetEmailDetails(string? input)
         {
-            var parts = input.Split(',', StringSplitOptions.TrimEntries);
-            var details = new List<DmarcEmailDetail>();
-
-            foreach (var part in parts)
+            if (string.IsNullOrEmpty(input))
             {
-                if (!DmarcEmailDetail.TryParse(part, out var emailDetail))
-                {
-                    dmarcEmailDetails = null;
-                    return false;
-                }
-
-                details.Add(emailDetail);
+                return null;
             }
 
-            dmarcEmailDetails = [.. details];
-            return true;
+            var details = new List<DmarcEmailDetail>();
+
+            foreach (var part in input.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (DmarcEmailDetail.TryParse(part, out var emailDetail))
+                {
+                    details.Add(emailDetail);
+                }
+            }
+
+            return details.Count > 0 ? [.. details] : null;
         }
 
         private static bool TryGetAlignmentMode(
@@ -340,18 +364,36 @@ namespace Nager.EmailAuthentication
             return true;
         }
 
-        private static bool TryGetDmarcPolicy(
-            string input,
-            [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
+        /// <summary>
+        /// Policy of an optional tag ("sp" and "np")
+        /// </summary>
+        /// <returns><c>false</c> if the tag has a value that is not a policy</returns>
+        private static bool TryGetOptionalDmarcPolicy(
+            string? input,
+            out DmarcPolicy? dmarcPolicy)
         {
-            if (!int.TryParse(input, out _) && Enum.TryParse(input, true, out DmarcPolicy parsedPolicy) && Enum.IsDefined(parsedPolicy))
+            if (string.IsNullOrEmpty(input))
             {
-                dmarcPolicy = parsedPolicy;
+                dmarcPolicy = null;
                 return true;
             }
 
-            dmarcPolicy = null;
-            return false;
+            return TryGetDmarcPolicy(input, out dmarcPolicy);
+        }
+
+        private static bool TryGetDmarcPolicy(
+            string? input,
+            [NotNullWhen(true)] out DmarcPolicy? dmarcPolicy)
+        {
+            dmarcPolicy = input?.ToLowerInvariant() switch
+            {
+                "none" => DmarcPolicy.None,
+                "quarantine" => DmarcPolicy.Quarantine,
+                "reject" => DmarcPolicy.Reject,
+                _ => null
+            };
+
+            return dmarcPolicy != null;
         }
     }
 }

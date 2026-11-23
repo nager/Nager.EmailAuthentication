@@ -100,6 +100,18 @@ namespace Nager.EmailAuthentication.Models.Dmarc
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the given value is a valid URI of another scheme than "mailto:" (e.g. "https://example.com/report").
+        /// Such URIs are allowed in a DMARC record, but mail receivers only have to support "mailto:" URIs and ignore the others.
+        /// </summary>
+        /// <param name="uri">The URI of a "rua" or "ruf" tag.</param>
+        /// <returns><see langword="true"/> if the value is an absolute URI of another scheme than "mailto:"; otherwise <see langword="false"/>.</returns>
+        internal static bool IsUnsupportedUri(string uri)
+        {
+            return Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri) &&
+                !parsedUri.Scheme.Equals(Uri.UriSchemeMailto, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static bool CheckIsValidEmailAddress(string emailAddress)
         {
             if (string.IsNullOrWhiteSpace(emailAddress))

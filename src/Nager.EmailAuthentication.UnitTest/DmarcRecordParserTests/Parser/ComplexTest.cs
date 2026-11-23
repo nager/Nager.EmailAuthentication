@@ -1,4 +1,4 @@
-﻿using Nager.EmailAuthentication.FragmentParsers;
+﻿using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.Models.Dmarc;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.Parser
@@ -15,7 +15,12 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.Parser
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dmarcRecord);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+
+            // The pct tag is obsolete (RFC 9989)
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(1, parsingResults.Length);
+            Assert.AreEqual("pct", parsingResults[0].Field);
+            Assert.AreEqual(ParsingStatus.Warning, parsingResults[0].Status);
 
             if (dmarcRecord is not DmarcRecordV1 dmarcRecordV1)
             {
@@ -77,25 +82,51 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.Parser
         }
 
         [TestMethod]
-        public void TryParse_InvalidDmarcStringInvalidValueAdkimAndAspf_ReturnFalse()
+        public void TryParse_InvalidDmarcStringInvalidValueAdkimAndAspf_ReturnsTrueWithDefaultValues()
         {
-            var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; pct=50; adkim=t; aspf=t";
+            var recordRaw = "v=DMARC1; p=reject; rua=mailto:postmaster@example.com, mailto:dmarc@example.com; adkim=t; aspf=t";
 
-            var isParserSuccessful = DmarcRecordParser.TryParse(recordRaw, out var dmarcRecord);
+            var isParserSuccessful = DmarcRecordParser.TryParse(recordRaw, out var dmarcRecord, out var parsingResults);
 
-            Assert.IsFalse(isParserSuccessful);
-            Assert.IsNull(dmarcRecord);
+            // A tag with an invalid value is ignored in favor of its default value (RFC 9989 section 4.8)
+            Assert.IsTrue(isParserSuccessful);
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(2, parsingResults.Length);
+            Assert.IsTrue(parsingResults.All(o => o.Status == ParsingStatus.Error));
+
+            if (dmarcRecord is not DmarcRecordV1 dmarcRecordV1)
+            {
+                Assert.Fail("Wrong DmarcRecordV1 class");
+                return;
+            }
+
+            Assert.AreEqual(DmarcPolicy.Reject, dmarcRecordV1.DomainPolicy);
+            Assert.AreEqual(AlignmentMode.Relaxed, dmarcRecordV1.DkimAlignmentMode);
+            Assert.AreEqual(AlignmentMode.Relaxed, dmarcRecordV1.SpfAlignmentMode);
         }
 
         [TestMethod]
-        public void TryParse_InvalidDmarcStringNoValueAfterExclamationMark_ReturnFalse()
+        public void TryParse_InvalidDmarcStringNoValueAfterExclamationMark_ReturnsTrueWithoutReportUri()
         {
             var recordRaw = "v=DMARC1; p=none; rua=mailto:postmaster@example.com!";
 
-            var isParserSuccessful = DmarcRecordParser.TryParse(recordRaw, out var dmarcRecord);
+            var isParserSuccessful = DmarcRecordParser.TryParse(recordRaw, out var dmarcRecord, out var parsingResults);
 
-            Assert.IsFalse(isParserSuccessful);
-            Assert.IsNull(dmarcRecord);
+            // The policy is still applied, the invalid report URI is ignored
+            Assert.IsTrue(isParserSuccessful);
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(1, parsingResults.Length);
+            Assert.AreEqual("rua", parsingResults[0].Field);
+            Assert.AreEqual(ParsingStatus.Error, parsingResults[0].Status);
+
+            if (dmarcRecord is not DmarcRecordV1 dmarcRecordV1)
+            {
+                Assert.Fail("Wrong DmarcRecordV1 class");
+                return;
+            }
+
+            Assert.AreEqual(DmarcPolicy.None, dmarcRecordV1.DomainPolicy);
+            Assert.IsNull(dmarcRecordV1.AggregateReportUri);
         }
 
         //

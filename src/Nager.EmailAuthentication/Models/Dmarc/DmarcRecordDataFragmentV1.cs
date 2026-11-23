@@ -18,6 +18,21 @@ namespace Nager.EmailAuthentication.Models.Dmarc
         public string? SubdomainPolicy { get; set; }
 
         /// <summary>
+        /// Gets or sets the policy for non-existent subdomains (e.g., "none", "quarantine", "reject").
+        /// </summary>
+        public string? NonExistentSubdomainPolicy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test mode (e.g., "y", "n").
+        /// </summary>
+        public string? TestMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Public Suffix Domain flag (e.g., "y", "n", "u").
+        /// </summary>
+        public string? PublicSuffixDomain { get; set; }
+
+        /// <summary>
         /// Gets or sets the URI for aggregate reports (e.g., "mailto:aggregate@example.com").
         /// </summary>
         public string? AggregateReportUri { get; set; }
@@ -70,6 +85,18 @@ namespace Nager.EmailAuthentication.Models.Dmarc
             if (!string.IsNullOrWhiteSpace(SubdomainPolicy))
             {
                 builder.Append($"; sp={SubdomainPolicy}");
+            }
+            if (!string.IsNullOrWhiteSpace(NonExistentSubdomainPolicy))
+            {
+                builder.Append($"; np={NonExistentSubdomainPolicy}");
+            }
+            if (!string.IsNullOrWhiteSpace(TestMode))
+            {
+                builder.Append($"; t={TestMode}");
+            }
+            if (!string.IsNullOrWhiteSpace(PublicSuffixDomain))
+            {
+                builder.Append($"; psd={PublicSuffixDomain}");
             }
             if (!string.IsNullOrWhiteSpace(AggregateReportUri))
             {

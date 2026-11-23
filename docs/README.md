@@ -5,27 +5,35 @@ With built-in support for error handling and validation, this library simplifies
 
 ## Features
 
-- Parse DMARC records with comprehensive validation.
-- Parse DKIM Public Key records with comprehensive validation.
+- Parse DMARC records according to RFC 9989 (DMARCbis), including the tags `np`, `psd` and `t`.
+- Parse DKIM Public Key records with comprehensive validation, including the key length.
 - Parse DKIM Signatures with comprehensive validation.
-- Parse SPF records
-- Identify and report errors in DMARC configurations.
-- Identify and report errors in DKIM configurations.
+- Parse SPF records into mechanisms and modifiers.
+- Identify and report errors in DMARC, DKIM and SPF configurations.
 
 ## Examples
 
 **Parsing a DMARC Record**
 ```cs
 var dmarcRecordRaw = "v=DMARC1; p=reject;";
-if (!DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord))
+if (DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord))
 {
 }
 ```
 
 **Handling Validation Errors**
 ```cs
-var dmarcRecord = "v=DMARC1; p=invalid;";
-if (!DmarcRecordDataFragmentParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parsingResults))
+var dmarcRecordRaw = "v=DMARC1; p=reject; pct=50; adkim=x;";
+if (DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord, out var parsingResults))
+{
+    // parsingResults contains a warning for the obsolete tag pct and an error for adkim
+}
+```
+
+**Parsing an SPF Record**
+```cs
+var spfRecordRaw = "v=spf1 include:spf.example.com -all";
+if (SpfRecordDataFragmentParserV1.TryParse(spfRecordRaw, out var spfRecord, out var parsingResults))
 {
 }
 ```

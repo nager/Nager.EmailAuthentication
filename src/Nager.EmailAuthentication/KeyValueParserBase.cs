@@ -25,6 +25,7 @@ namespace Nager.EmailAuthentication
 
             var tagDelimiter = ';';
             this._keyValueSeparator = '=';
+
             this._keyValueParser = new MemoryEfficientKeyValueParser(tagDelimiter, this._keyValueSeparator);
         }
 
@@ -52,7 +53,7 @@ namespace Nager.EmailAuthentication
 
             // Detect duplicate keys
             var duplicateConfigurations = parseResult.KeyValues
-                .GroupBy(o => o.Key)
+                .GroupBy(o => o.Key?.Trim())
                 .Where(g => g.Count() > 1);
 
             foreach (var duplicate in duplicateConfigurations)
@@ -60,7 +61,24 @@ namespace Nager.EmailAuthentication
                 tempParsingResults.Add(new ParsingResult
                 {
                     Status = ParsingStatus.Error,
+                    Field = duplicate.Key,
                     Message = $"Duplicate configuration detected for key: '{duplicate.Key}'."
+                });
+            }
+
+            // Parts without a separator are a syntax error, e.g. "p" or "reject" instead of "p=reject"
+            foreach (var unrecognizedPart in parseResult.UnrecognizedParts ?? [])
+            {
+                if (string.IsNullOrWhiteSpace(unrecognizedPart))
+                {
+                    continue;
+                }
+
+                tempParsingResults.Add(new ParsingResult
+                {
+                    Field = unrecognizedPart.Trim(),
+                    Message = $"Unrecognized part, '{this._keyValueSeparator}' is missing: {unrecognizedPart.Trim()}",
+                    Status = ParsingStatus.Error
                 });
             }
 
@@ -69,31 +87,35 @@ namespace Nager.EmailAuthentication
 
             foreach (var keyValue in parseResult.KeyValues)
             {
-                if (string.IsNullOrEmpty(keyValue.Key))
+                // Whitespace around the separator is allowed (RFC 6376 section 3.2, RFC 9989 section 4.8)
+                var key = keyValue.Key?.Trim();
+                var value = keyValue.Value?.Trim();
+
+                if (string.IsNullOrEmpty(key))
                 {
                     continue;
                 }
 
-                if (this._mappingHandlers.TryGetValue(keyValue.Key.ToLowerInvariant(), out var handler))
+                if (this._mappingHandlers.TryGetValue(key.ToLowerInvariant(), out var handler))
                 {
                     if (handler.Validate != null)
                     {
-                        var mappingErrors = handler.Validate(new ValidateRequest { Field = keyValue.Key, Value = keyValue.Value });
+                        var mappingErrors = handler.Validate(new ValidateRequest { Field = key, Value = value });
                         if (mappingErrors?.Length > 0)
                         {
                             tempParsingResults.AddRange(mappingErrors);
                         }
                     }
 
-                    handler.Map(tempDataFragment, keyValue.Value ?? "");
+                    handler.Map(tempDataFragment, value ?? "");
                     mappingFound = true;
                     continue;
                 }
 
                 tempParsingResults.Add(new ParsingResult
                 {
-                    Field = keyValue.Key,
-                    Message = $"Unrecognized part: {keyValue.Key}{this._keyValueSeparator}{keyValue.Value}",
+                    Field = key,
+                    Message = $"Unrecognized part: {key}{this._keyValueSeparator}{value}",
                     Status = ParsingStatus.Warning
                 });
             }

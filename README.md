@@ -10,11 +10,11 @@ This library focuses on extracting and interpreting the content of these DNS rec
 
 ## Features
 
-- Parse DMARC records with comprehensive validation.
-- Parse DKIM Public Key records with comprehensive validation.
+- Parse DMARC records according to RFC 9989 (DMARCbis), including the tags `np`, `psd` and `t`.
+- Parse DKIM Public Key records with comprehensive validation, including the key length.
 - Parse DKIM Signatures with comprehensive validation.
-- Identify and report errors in DMARC configurations.
-- Identify and report errors in DKIM configurations.
+- Parse SPF records into mechanisms and modifiers.
+- Identify and report errors in DMARC, DKIM and SPF configurations.
 
 ## Installation
 
@@ -33,34 +33,54 @@ dotnet add package Nager.EmailAuthentication
 
 ### Parsing a DMARC Record
 
-Use `DmarcRecordParser.TryParse` to validate a DMARC record string. The method returns `true` if parsing succeeds and outputs a `DmarcRecord` object.
+Use `DmarcRecordParser.TryParse` to parse a DMARC record string. The record is interpreted like a mail receiver does
+according to RFC 9989: the method returns `true` if mail receivers can apply the record and outputs a `DmarcRecordV1` object.
 
 ```cs
-var dmarcRecordRaw = "v=DMARC1; p=reject;";
-if (!DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord))
+var dmarcRecordRaw = "v=DMARC1; p=reject; sp=quarantine; t=y; rua=mailto:dmarc@example.com";
+if (DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord) && dmarcRecord is DmarcRecordV1 dmarcRecordV1)
 {
-    // dmarcRecord now contains the parsed DMARC policy.
-    Console.WriteLine($"DMARC policy: {dmarcRecord.Policy}");
-}
-else
-{
-    // Handle unexpected parsing failure (should not happen for a valid record).
+    Console.WriteLine($"Policy: {dmarcRecordV1.DomainPolicy}");                                  // Reject
+    Console.WriteLine($"Policy for subdomains: {dmarcRecordV1.SubdomainPolicy}");                // Quarantine
+    Console.WriteLine($"Policy for non-existent subdomains: {dmarcRecordV1.NonExistentSubdomainPolicy}"); // Quarantine
+    Console.WriteLine($"Test mode: {dmarcRecordV1.TestMode}");                                   // True
 }
 ```
 
+To find the DMARC record among the TXT records of a domain, use `DmarcRecordParser.IsDmarcRecord`.
+
 ### Handling DMARC Validation Errors
 
-To capture validation errors (e.g., missing or invalid tags), use `DmarcRecordDataFragmentParser.TryParse`, which provides detailed parsing results when the record is invalid:
+The overload with `parsingResults` reports what is wrong with a record. A tag with an invalid value does not make the
+record invalid, mail receivers ignore the tag in favor of its default value. The parsing only fails if mail receivers
+ignore the whole record, e.g. if it has no valid policy and no URI for aggregate reports.
 
 ```cs
-var dmarcRecord = "v=DMARC1; p=invalid;";
-if (!DmarcRecordDataFragmentParser.TryParse(dmarcRecord, out var dmarcDataFragment, out var parsingResults))
+var dmarcRecordRaw = "v=DMARC1; p=reject; pct=50; adkim=x; rua=mailto:dmarc@example.com";
+var isValid = DmarcRecordParser.TryParse(dmarcRecordRaw, out var dmarcRecord, out var parsingResults);
+
+foreach (var parsingResult in parsingResults ?? [])
 {
-    // parseResult contains error messages explaining what went wrong.
-    Console.WriteLine("DMARC parsing failed:");
-    foreach (var error in parseResult.Errors)
+    // Warning [pct]: Tag is obsolete. Introduced in RFC 7489 and removed in RFC 9989.
+    // Error   [adkim]: Wrong config x
+    Console.WriteLine(parsingResult);
+}
+```
+
+The tags `pct`, `rf` and `ri` were removed by RFC 9989, they are reported with a warning.
+
+### Parsing an SPF Record
+
+Use `SpfRecordDataFragmentParserV1.TryParse` to parse an SPF record into its mechanisms and modifiers.
+Terms that are neither a mechanism nor a modifier are reported in `parsingResults`.
+
+```cs
+var spfRecordRaw = "v=spf1 include:spf.example.com ip4:192.0.2.0/24 -all";
+if (SpfRecordDataFragmentParserV1.TryParse(spfRecordRaw, out var spfRecord, out var parsingResults))
+{
+    foreach (var spfTerm in spfRecord.SpfTerms)
     {
-        Console.WriteLine($"  - {error}");
+        Console.WriteLine(spfTerm);
     }
 }
 ```
@@ -71,10 +91,13 @@ Similarly, you can parse a DKIM public key (DNS TXT) record. Use `DkimPublicKeyR
 
 ```cs
 string dkimKeyRecord = "v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ..."; // Example public key
-if (DkimPublicKeyRecordParser.TryParse(dkimKeyRecord, out var publicKeyRecord))
+if (DkimPublicKeyRecordParser.TryParse(dkimKeyRecord, out var publicKeyRecord) && publicKeyRecord is DkimPublicKeyRecordV1 publicKeyRecordV1)
 {
-    // publicKeyRecord contains the parsed DKIM public key information.
-    Console.WriteLine($"DKIM Key Version: {publicKeyRecord.Version}");
+    // publicKeyRecordV1 contains the parsed DKIM public key information.
+    Console.WriteLine($"DKIM Key Version: {publicKeyRecordV1.Version}");
+    Console.WriteLine($"Key length in bits: {publicKeyRecordV1.KeyLength}");
+    Console.WriteLine($"Revoked: {publicKeyRecordV1.IsRevoked}");
+    Console.WriteLine($"Test mode: {publicKeyRecordV1.IsTestMode}");
 }
 else
 {

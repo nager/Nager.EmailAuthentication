@@ -67,6 +67,27 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     }
                 },
                 {
+                    "np", new MappingHandler<DmarcRecordDataFragmentV1>
+                    {
+                        Map = (dataFragment, value) => dataFragment.NonExistentSubdomainPolicy = value,
+                        Validate = ValidateDomainPolicy
+                    }
+                },
+                {
+                    "t", new MappingHandler<DmarcRecordDataFragmentV1>
+                    {
+                        Map = (dataFragment, value) => dataFragment.TestMode = value,
+                        Validate = ValidateTestMode
+                    }
+                },
+                {
+                    "psd", new MappingHandler<DmarcRecordDataFragmentV1>
+                    {
+                        Map = (dataFragment, value) => dataFragment.PublicSuffixDomain = value,
+                        Validate = ValidatePublicSuffixDomain
+                    }
+                },
+                {
                     "rua", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.AggregateReportUri = value,
@@ -84,7 +105,7 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     "rf", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportFormat = value,
-                        Validate = ValidateReportFormat
+                        Validate = ValidateObsoleteTag
                     }
                 },
                 {
@@ -98,14 +119,14 @@ namespace Nager.EmailAuthentication.FragmentParsers
                     "pct", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.PolicyPercentage = value,
-                        Validate = ValidatePolicyPercentage
+                        Validate = ValidateObsoleteTag
                     }
                 },
                 {
                     "ri", new MappingHandler<DmarcRecordDataFragmentV1>
                     {
                         Map = (dataFragment, value) => dataFragment.ReportingInterval = value,
-                        Validate = ValidateReportingInterval
+                        Validate = ValidateObsoleteTag
                     }
                 },
                 {
@@ -144,7 +165,8 @@ namespace Nager.EmailAuthentication.FragmentParsers
                 return [.. parsingResults];
             }
 
-            if (!validateRequest.Value.Equals("DMARC1", StringComparison.OrdinalIgnoreCase))
+            // The value of the version tag is case sensitive (RFC 9989 section 4.7)
+            if (!validateRequest.Value.Equals("DMARC1", StringComparison.Ordinal))
             {
                 parsingResults.Add(new ParsingResult
                 {
@@ -184,85 +206,62 @@ namespace Nager.EmailAuthentication.FragmentParsers
             return [.. parsingResults];
         }
 
-        private static ParsingResult[] ValidatePolicyPercentage(ValidateRequest validateRequest)
+        /// <summary>
+        /// Tags of RFC 7489 that were removed by RFC 9989 ("pct", "rf" and "ri"). Mail receivers ignore them,
+        /// so the value is not validated.
+        /// </summary>
+        private static ParsingResult[] ValidateObsoleteTag(ValidateRequest validateRequest)
         {
-            var parsingResults = new List<ParsingResult>();
+            return
+            [
+                new ParsingResult
+                {
+                    Status = ParsingStatus.Warning,
+                    Field = validateRequest.Field,
+                    Message = "Tag is obsolete. Introduced in RFC 7489 and removed in RFC 9989."
+                }
+            ];
+        }
 
+        private static ParsingResult[] ValidateTestMode(ValidateRequest validateRequest)
+        {
+            return ValidateAllowedValues(validateRequest, "y", "n");
+        }
+
+        private static ParsingResult[] ValidatePublicSuffixDomain(ValidateRequest validateRequest)
+        {
+            return ValidateAllowedValues(validateRequest, "y", "n", "u");
+        }
+
+        private static ParsingResult[] ValidateAllowedValues(ValidateRequest validateRequest, params string[] allowedValues)
+        {
             if (string.IsNullOrEmpty(validateRequest.Value))
             {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Is empty"
-                });
-
-                return [.. parsingResults];
+                return
+                [
+                    new ParsingResult
+                    {
+                        Status = ParsingStatus.Error,
+                        Field = validateRequest.Field,
+                        Message = "Is empty"
+                    }
+                ];
             }
 
-            if (!int.TryParse(validateRequest.Value, out var percentage))
+            if (!allowedValues.Contains(validateRequest.Value, StringComparer.OrdinalIgnoreCase))
             {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Value is not a number"
-                });
-
-                return [.. parsingResults];
-            }
-
-            if (percentage < 0 || percentage > 100)
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Value is not in allowed range"
-                });
-
-                return [.. parsingResults];
+                return
+                [
+                    new ParsingResult
+                    {
+                        Status = ParsingStatus.Error,
+                        Field = validateRequest.Field,
+                        Message = $"Wrong config {validateRequest.Value}"
+                    }
+                ];
             }
 
             return [];
-        }
-
-        private static ParsingResult[] ValidateReportFormat(ValidateRequest validateRequest)
-        {
-            var parsingResults = new List<ParsingResult>();
-
-            if (string.IsNullOrEmpty(validateRequest.Value))
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Is empty"
-                });
-
-                return [.. parsingResults];
-            }
-
-            if (!validateRequest.Value.Equals("afrf", StringComparison.OrdinalIgnoreCase))
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Only allow Authentication Failure Reporting Format (afrf)"
-                });
-
-                return [.. parsingResults];
-            }
-
-            parsingResults.Add(new ParsingResult
-            {
-                Status = ParsingStatus.Info,
-                Field = validateRequest.Field,
-                Message = "Is not required"
-            });
-
-            return [.. parsingResults];
         }
 
         private static ParsingResult[] ValidateFailureReportingOptions(ValidateRequest validateRequest)
@@ -346,65 +345,6 @@ namespace Nager.EmailAuthentication.FragmentParsers
             return [.. parsingResults];
         }
 
-        private static ParsingResult[] ValidateReportingInterval(ValidateRequest validateRequest)
-        {
-            var parsingResults = new List<ParsingResult>();
-
-            if (string.IsNullOrEmpty(validateRequest.Value))
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Is empty"
-                });
-
-                return [.. parsingResults];
-            }
-
-            if (!int.TryParse(validateRequest.Value, out var reportInterval))
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Error,
-                    Field = validateRequest.Field,
-                    Message = "Value is not a number"
-                });
-
-                return [.. parsingResults];
-            }
-
-            var reportIntervalTimeSpan = TimeSpan.FromSeconds(reportInterval);
-
-            // Time interval is less than one hour
-            if (reportInterval < 3600)
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Warning,
-                    Field = validateRequest.Field,
-                    Message = $"Value is to small, {reportIntervalTimeSpan.TotalHours} hours"
-                });
-
-                return [.. parsingResults];
-            }
-
-            // Time interval is greater than 2 days
-            if (reportInterval > 86400 * 2)
-            {
-                parsingResults.Add(new ParsingResult
-                {
-                    Status = ParsingStatus.Warning,
-                    Field = validateRequest.Field,
-                    Message = $"Value is to large, {reportIntervalTimeSpan.TotalDays} days"
-                });
-
-                return [.. parsingResults];
-            }
-
-            return [];
-        }
-
         private static ParsingResult[] ValidateAlignmentMode(ValidateRequest validateRequest)
         {
             var parsingResults = new List<ParsingResult>();
@@ -470,6 +410,19 @@ namespace Nager.EmailAuthentication.FragmentParsers
             {
                 if (!DmarcEmailDetail.TryParse(dmarcUri.Trim(), out var dmarcEmailDetail))
                 {
+                    if (DmarcEmailDetail.IsUnsupportedUri(dmarcUri.Trim()))
+                    {
+                        // Every URI is allowed, mail receivers only have to support "mailto:" (RFC 9989 section 4.7)
+                        parsingResults.Add(new ParsingResult
+                        {
+                            Status = ParsingStatus.Warning,
+                            Field = validateRequest.Field,
+                            Message = $"Only mailto URIs are supported by mail receivers, {dmarcUri.Trim()} is ignored"
+                        });
+
+                        continue;
+                    }
+
                     parsingResults.Add(new ParsingResult
                     {
                         Status = ParsingStatus.Error,

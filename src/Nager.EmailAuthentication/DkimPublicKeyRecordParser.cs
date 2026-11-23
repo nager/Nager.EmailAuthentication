@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Helpers;
 using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.Models.Dkim;
 using System.Diagnostics.CodeAnalysis;
@@ -88,11 +89,15 @@ namespace Nager.EmailAuthentication
         }
 
         /// <summary>
-        /// Try Parse
+        /// Attempts to convert a <see cref="DkimPublicKeyRecordDataFragmentV1"/> into a <see cref="DkimPublicKeyRecordV1"/>.
         /// </summary>
-        /// <param name="dkimPublicKeyRecordDataFragment"></param>
-        /// <param name="dkimPublicKeyRecord"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// The public key (p=) is required. A record with an empty public key is a revoked key
+        /// (<see cref="DkimPublicKeyRecordV1.IsRevoked"/>), a record without the tag is not a DKIM public key record.
+        /// </remarks>
+        /// <param name="dkimPublicKeyRecordDataFragment">The data fragment with the tags of the record.</param>
+        /// <param name="dkimPublicKeyRecord">The parsed DKIM public key record, if successful.</param>
+        /// <returns><see langword="true"/> if the conversion is successful; otherwise <see langword="false"/>.</returns>
         public static bool TryParseV1(
             DkimPublicKeyRecordDataFragmentV1? dkimPublicKeyRecordDataFragment,
             [NotNullWhen(true)] out DkimPublicKeyRecordV1? dkimPublicKeyRecord)
@@ -110,16 +115,27 @@ namespace Nager.EmailAuthentication
                 return false;
             }
 
+            // The public key is required (RFC 6376 section 3.6.1)
+            if (dkimPublicKeyRecordDataFragment.PublicKeyData == null)
+            {
+                return false;
+            }
+
             dkimPublicKeyRecord = new DkimPublicKeyRecordV1
             {
                 Version = dkimPublicKeyRecordDataFragment.Version ?? "DKIM1",
                 KeyType = dkimPublicKeyRecordDataFragment.KeyType ?? "rsa",
-                PublicKeyData = dkimPublicKeyRecordDataFragment.PublicKeyData ?? string.Empty,
+                PublicKeyData = dkimPublicKeyRecordDataFragment.PublicKeyData,
                 Notes = dkimPublicKeyRecordDataFragment.Notes,
                 Flags = dkimPublicKeyRecordDataFragment.Flags,
                 AcceptableHashAlgorithms = dkimPublicKeyRecordDataFragment.AcceptableHashAlgorithms,
                 ServiceType = dkimPublicKeyRecordDataFragment.ServiceType ?? "*"
             };
+
+            if (DkimPublicKeyHelper.TryGetKeyLength(dkimPublicKeyRecord.KeyType, dkimPublicKeyRecord.PublicKeyData, out var keyLength))
+            {
+                dkimPublicKeyRecord.KeyLength = keyLength;
+            }
 
             return true;
         }

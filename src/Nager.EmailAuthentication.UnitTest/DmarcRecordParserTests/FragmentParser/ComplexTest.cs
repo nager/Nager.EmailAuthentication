@@ -1,4 +1,5 @@
 ﻿using Nager.EmailAuthentication.FragmentParsers;
+using Nager.EmailAuthentication.Models;
 using Nager.EmailAuthentication.Models.Dmarc;
 
 namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentParser
@@ -15,7 +16,12 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentPars
 
             Assert.IsTrue(isSuccessful);
             Assert.IsNotNull(dataFragment);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+
+            // The pct tag is obsolete (RFC 9989)
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(1, parsingResults.Length);
+            Assert.AreEqual("pct", parsingResults[0].Field);
+            Assert.AreEqual(ParsingStatus.Warning, parsingResults[0].Status);
 
             if (dataFragment is not DmarcRecordDataFragmentV1 dataFragmentV1)
             {
@@ -39,7 +45,12 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentPars
 
             Assert.IsTrue(isDataFragmentParserSuccessful);
             Assert.IsNotNull(dataFragment);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+
+            // The pct tag is obsolete (RFC 9989)
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(1, parsingResults.Length);
+            Assert.AreEqual("pct", parsingResults[0].Field);
+            Assert.AreEqual(ParsingStatus.Warning, parsingResults[0].Status);
 
             if (dataFragment is not DmarcRecordDataFragmentV1 dataFragmentV1)
             {
@@ -63,7 +74,12 @@ namespace Nager.EmailAuthentication.UnitTest.DmarcRecordParserTests.FragmentPars
 
             Assert.IsTrue(isDataFragmentParserSuccessful);
             Assert.IsNotNull(dataFragment);
-            Assert.IsNull(parsingResults, "ParsingResults is not null");
+
+            // The pct tag is obsolete (RFC 9989)
+            Assert.IsNotNull(parsingResults, "ParsingResults is null");
+            Assert.AreEqual(1, parsingResults.Length);
+            Assert.AreEqual("pct", parsingResults[0].Field);
+            Assert.AreEqual(ParsingStatus.Warning, parsingResults[0].Status);
 
             if (dataFragment is not DmarcRecordDataFragmentV1 dataFragmentV1)
             {
