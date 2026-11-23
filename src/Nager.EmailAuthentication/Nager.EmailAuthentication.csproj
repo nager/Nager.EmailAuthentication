@@ -28,7 +28,7 @@
   </ItemGroup>
 	
   <ItemGroup>
-    <PackageReference Include="Nager.KeyValueParser" Version="1.1.0" />
+    <PackageReference Include="Nager.KeyValueParser" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
